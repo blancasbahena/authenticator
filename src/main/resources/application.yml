@@ -1,0 +1,41 @@
+server:
+  port: 0
+  max-http-header-size: 10MB
+  servlet:
+    context-path: /sae-auth
+spring:
+  application:
+    name: sae-nac-api-auth
+  mvc:
+    servlet:
+      path: /v1
+  profiles:
+    active: dev
+    pathmatch:
+      matching-strategy: ant_path_matcher
+logging:
+  level:
+    com:
+      truper:
+        sar:
+          feing:
+            clients:
+              SharePointFeignClient: DEBUG 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: helth, info, metrics, prometheus
+  endpoint:
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+springfox:
+  documentation:
+    auto-startup: false
