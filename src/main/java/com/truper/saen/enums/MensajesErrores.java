@@ -1,4 +1,4 @@
-package com.truper.sae_nacionales.enums;
+package com.truper.saen.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

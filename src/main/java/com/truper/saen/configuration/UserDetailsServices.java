@@ -1,11 +1,13 @@
-package com.truper.sae_nacionales.security;
+package com.truper.saen.configuration;
 
 import java.util.ArrayList;
+
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
 @Service
 public class UserDetailsServices implements UserDetailsService{
 
@@ -16,5 +18,6 @@ public class UserDetailsServices implements UserDetailsService{
 		//request=LeerBase Datos(userName);
 		return new User(usuario,password,new ArrayList<>());
 	}
+
 
 }

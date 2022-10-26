@@ -7,7 +7,7 @@
 	<appender name="screen"
 		class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>${principal-pattern}</pattern>s
+			<pattern>${principal-pattern}</pattern>
 		</encoder>
 	</appender>
 
