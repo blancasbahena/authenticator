@@ -9,58 +9,26 @@
 		<version>2.5.4</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.truper.saen</groupId>
+	<groupId>com.truper.sae.authenticator</groupId>
 	<artifactId>sae-authenticator</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>archetype-spring-boot-jwt-sae</name>
 	<description>Proyecto con Spring-Boot que descifra token</description>
 
 	<properties>
-		<java.version>1.8</java.version>
-		<spring-security.version>3.2.10.RELEASE</spring-security.version>
 		<jjwt.version>0.10.7</jjwt.version>
 		<spring-cloud.version>2020.0.6</spring-cloud.version>
 	</properties>
-
-	<!-- REPOSITORIO CENTRAL INTERNO DE TRUPER HERRAMIENTAS -->
-	<repositories>
-		<repository>
-			<id>internal</id>
-			<name>TRUPER Repository</name>
-			<url>http://172.20.3.18:9090/repository/internal/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-		</repository>
-		<repository>
-			<id>snapshots</id>
-			<name>TRUPER Repository</name>
-			<url>http://172.20.3.18:9090/repository/snapshots/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
-
-	<distributionManagement>
-		<repository>
-			<uniqueVersion>true</uniqueVersion>
-			<id>internal</id>
-			<name>Internal Release Repository</name>
-			<url>http://172.20.3.18:9090/repository/internal/</url>
-		</repository>
-		<snapshotRepository>
-			<uniqueVersion>false</uniqueVersion>
-			<id>snapshots</id>
-			<name>Snapshots Release Repository</name>
-			<url>http://172.20.3.18:9090/repository/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
-
+ 
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.truper</groupId>
+			<artifactId>truper-login</artifactId>
+			<version>3.0.0</version>
 		</dependency>
 
 		<dependency>
@@ -70,18 +38,8 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-		    <groupId>org.projectlombok</groupId>
-		    <artifactId>lombok</artifactId>
-		    <scope>provided</scope>
-		</dependency>
-		 <dependency>
-            <groupId>com.truper.sae</groupId>
-            <artifactId>sae-nac-common</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-       	</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -94,19 +52,11 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
-		</dependency> 
+		</dependency>
 		<!-- Spring Security -->
 		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-config</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 		<!-- AMQ -->
 		<dependency>
@@ -131,12 +81,6 @@
 			<version>${jjwt.version}</version>
 			<scope>runtime</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>com.truper</groupId>
-			<artifactId>jwt-consumer</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
 		<!-- log4j2 -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -156,10 +100,10 @@
 		</dependency>
 		<!-- BD SQLServer -->
 		<dependency>
-            <groupId>com.microsoft.sqlserver</groupId>
-            <artifactId>mssql-jdbc</artifactId>
-            <scope>runtime</scope>
-        </dependency>
+			<groupId>com.microsoft.sqlserver</groupId>
+			<artifactId>mssql-jdbc</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 		<!-- Jackson -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -176,10 +120,6 @@
 			<artifactId>guava</artifactId>
 			<version>20.0</version>
 		</dependency>
-
-
-
-
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-config</artifactId>
@@ -192,155 +132,17 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-bootstrap</artifactId>
 		</dependency>
+		 <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+        </dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency> 
 	</dependencies>
 
-	<!-- Profiles -->
-	<profiles>
-		<profile>
-			<id>dev</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<project.packaging>war</project.packaging>
-				<activatedProperties>dev</activatedProperties>
-			</properties>
-		</profile>
-
-		<profile>
-			<id>qas</id>
-			<properties>
-				<project.packaging>war</project.packaging>
-				<activatedProperties>qas</activatedProperties>
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-batch</artifactId>
-					<exclusions>
-						<exclusion>
-							<groupId>com.zaxxer</groupId>
-							<artifactId>HikariCP</artifactId>
-						</exclusion>
-					</exclusions>
-				</dependency>
-				<dependency>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-data-jpa</artifactId>
-					<exclusions>
-						<exclusion>
-							<groupId>org.apache.logging.log4j</groupId>
-							<artifactId>log4j-api</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>org.apache.logging.log4j</groupId>
-							<artifactId>log4j-to-slf4j</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>com.zaxxer</groupId>
-							<artifactId>HikariCP</artifactId>
-						</exclusion>
-					</exclusions>
-				</dependency>
-				<dependency>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-web</artifactId>
-					<exclusions>
-						<exclusion>
-							<groupId>org.springframework.boot</groupId>
-							<artifactId>spring-boot-starter-tomcat</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>org.jboss.logging</groupId>
-							<artifactId>jboss-logging</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>com.fasterxml</groupId>
-							<artifactId>classmate</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>javax.validation</groupId>
-							<artifactId>validation-api</artifactId>
-						</exclusion>
-					</exclusions>
-				</dependency>
-				<dependency>
-					<groupId>javax.servlet</groupId>
-					<artifactId>javax.servlet-api</artifactId>
-					<scope>provided</scope>
-				</dependency>
-			</dependencies>
-		</profile>
-
-		<profile>
-			<id>prod</id>
-			<properties>
-				<project.packaging>war</project.packaging>
-				<activatedProperties>prod</activatedProperties>
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-batch</artifactId>
-					<exclusions>
-						<exclusion>
-							<groupId>com.zaxxer</groupId>
-							<artifactId>HikariCP</artifactId>
-						</exclusion>
-					</exclusions>
-				</dependency>
-				<dependency>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-data-jpa</artifactId>
-					<exclusions>
-						<exclusion>
-							<groupId>org.apache.logging.log4j</groupId>
-							<artifactId>log4j-api</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>org.apache.logging.log4j</groupId>
-							<artifactId>log4j-to-slf4j</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>com.zaxxer</groupId>
-							<artifactId>HikariCP</artifactId>
-						</exclusion>
-					</exclusions>
-				</dependency>
-				<dependency>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-web</artifactId>
-					<exclusions>
-						<exclusion>
-							<groupId>org.springframework.boot</groupId>
-							<artifactId>spring-boot-starter-tomcat</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>org.jboss.logging</groupId>
-							<artifactId>jboss-logging</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>com.fasterxml</groupId>
-							<artifactId>classmate</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>javax.validation</groupId>
-							<artifactId>validation-api</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>org.springframework.boot</groupId>
-							<artifactId>spring-boot-starter-logging</artifactId>
-						</exclusion>
-					</exclusions>
-				</dependency>
-				<dependency>
-					<groupId>javax.servlet</groupId>
-					<artifactId>javax.servlet-api</artifactId>
-					<scope>provided</scope>
-				</dependency>
-			</dependencies>
-		</profile>
-	</profiles>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -353,11 +155,18 @@
 		</dependencies>
 	</dependencyManagement>
 	<build>
-		<finalName>${project.name}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

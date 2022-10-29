@@ -1,4 +1,4 @@
-package com.truper.saen.configuration;
+package com.truper.sae.authenticator.configuration;
 
 import java.io.IOException;
 
@@ -12,8 +12,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import lombok.extern.slf4j.Slf4j;
+@Component
+@Slf4j
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
 	@Autowired
@@ -30,11 +35,20 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 		String jwt = null;
 		if (authorizer != null && authorizer.startsWith("Bearer ")) {
 			jwt = authorizer.substring(7);
-			username = jWUtil.extractUsername(jwt);
+			try {
+				username = jWUtil.extractUsername(jwt);
+			} catch (IllegalArgumentException e) {
+				System.out.println("Unable to get JWT Token");
+			} catch (ExpiredJwtException e) {
+				System.out.println("JWT Token has expired");
+			}
+		}
+		else {
+			log.warn("JWT Token does not begin with Bearer String");
 		}
 		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 			UserDetails userDetails = this.myUserDatails.loadUserByUsername(username);
-			if (JWUtil.validateToken(jwt)) {
+			if (jWUtil.validateTokenAndUser(jwt,userDetails)) {
 				UsernamePasswordAuthenticationToken userPassToken = new UsernamePasswordAuthenticationToken(userDetails,
 						null, userDetails.getAuthorities());
 				userPassToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

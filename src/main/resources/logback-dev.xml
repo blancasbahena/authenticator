@@ -22,7 +22,7 @@
 		</encoder>
 	</appender>
 
-	<logger name="com.truper" additivity="false"
+	<logger name="com.truper.sae.authenticator" additivity="false"
 		level="info">
 		<appender-ref ref="consola" />
 		<appender-ref ref="screen" />

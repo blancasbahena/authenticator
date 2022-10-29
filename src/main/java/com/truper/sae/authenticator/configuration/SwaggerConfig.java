@@ -1,4 +1,4 @@
-package com.truper.saen.configuration;
+package com.truper.sae.authenticator.configuration;
 
 import java.util.Collections;
 
