@@ -1,0 +1,8 @@
+# Spring Cloud Config Client configuration
+spring:
+  cloud:
+    config:
+      uri: http://${SAE-NAC-SERVER-EUREKA-HOST}:${SAE-NAC-SERVER-CONFIG-PORT}/cloud-config-server
+      name: ${spring.application.name}
+      profile: ${spring.profiles.active}
+#      label: ${spring.profiles.active}
