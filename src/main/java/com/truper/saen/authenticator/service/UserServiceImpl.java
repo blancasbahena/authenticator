@@ -92,7 +92,7 @@ public class UserServiceImpl implements UserService {
 	public UserDTO findById(Long idUser) {
 		Optional<User> optPer =   userRepository.findById(idUser);
 		if(optPer.isPresent()) {
-			return modelMapper.map(optPer.get(), UserDTO.class);
+			return Relationships.directSelfReference(modelMapper.map(optPer.get(), UserDTO.class));
 		}
 		return null;
 	}
