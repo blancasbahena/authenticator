@@ -9,7 +9,7 @@
 		<version>2.5.4</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.truper.sae.authenticator</groupId>
+	<groupId>com.truper.saen</groupId>
 	<artifactId>sae-authenticator</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>sae-authenticator</name>
