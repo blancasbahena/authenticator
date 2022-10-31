@@ -31,6 +31,7 @@ public class UsuarioController {
 	@GetMapping 
 	@ApiOperation(value = "Url que pide authenticacion con JWT", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> getUsuarios(@RequestParam(required=false) String userName,@RequestParam(required=false) Long id){
+		log.info("Inicia obtencion de usuarios");
 		String mensaje="Problems in UsuarioController @ GetMapping";
 		try
 		{
@@ -51,12 +52,14 @@ public class UsuarioController {
 				}
 			}
 			else {
+				log.info("Termina obtencion de usuarios con error(1)");
 				return ResponseEntity.ok(ResponseVO.builder()
-						.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
-						.mensaje(Mensajes.MSG_NODATA.getMensaje())
-						.build());
+					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+					.mensaje(Mensajes.MSG_NODATA.getMensaje())
+					.build());
 			}
 			if(exito) {
+				log.info("Termina obtencion de usuarios con exito");
 				return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
@@ -67,6 +70,7 @@ public class UsuarioController {
 			log.error("Error: {}",e.getMessage());
 			mensaje =  e.getMessage();
 		}
+		log.info("Termina obtencion de usuarios con error(2)");
 		return ResponseEntity.ok(ResponseVO.builder()
 			.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 			.mensaje(mensaje)
@@ -76,11 +80,13 @@ public class UsuarioController {
 	@PostMapping
 	@ApiOperation(value = "Url que pide authenticacion con JWT", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> saveUsuarios(@RequestBody UserDTO dto){
+		log.info("Servicio para guardar usuarios");
 		String mensaje="Problems in UsuarioController @ PostMapping";
 		Map<String, Object> formData = new HashMap<>();
 		try
 		{
 			formData.put("result", service.save(dto));
+			log.info("Servicio para guardar usuarios termina con exito");
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
@@ -90,6 +96,7 @@ public class UsuarioController {
 			log.error("Error: {}",e.getMessage());
 			mensaje =  e.getMessage();
 		}
+		log.info("Servicio para guardar usuarios terminad con error");
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 				.mensaje(mensaje)
@@ -99,10 +106,12 @@ public class UsuarioController {
 	@ApiOperation(value = "Url que pide authenticacion con JWT", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> modifyUsuarios(@RequestBody UserDTO dto){
 		String mensaje="Problems in UsuarioController @ PutMapping";
+		log.info("Servicio para modificar usuarios");
 		Map<String, Object> formData = new HashMap<>();
 		try
 		{
 			formData.put("result", service.update(dto));
+			log.info("Servicio para modificar usuarios termina con exito");
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
@@ -112,6 +121,7 @@ public class UsuarioController {
 			log.error("Error: {}",e.getMessage());
 			mensaje =  e.getMessage();
 		}
+		log.info("Servicio para modificar usuarios termina con error");
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 				.mensaje(mensaje)
@@ -122,10 +132,12 @@ public class UsuarioController {
 	@ApiOperation(value = "Url que pide authenticacion con JWT", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> deleteUsuarios(@RequestBody UserDTO dto){
 		String mensaje="Problems in UsuarioController @ DeleteMapping";
+		log.info("Servicio para borrar usuarios");
 		Map<String, Object> formData = new HashMap<>();
 		try
 		{
 			formData.put("result", service.delete(dto));
+			log.info("Servicio para borrar usuarios termina con exito");
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
@@ -135,6 +147,7 @@ public class UsuarioController {
 			log.error("Error: {}",e.getMessage());
 			mensaje =  e.getMessage();
 		}
+		log.info("Servicio para borrar usuarios termina con error");
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 				.mensaje(mensaje)

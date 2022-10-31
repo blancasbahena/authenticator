@@ -7,9 +7,12 @@ import com.truper.sae.commons.dto.PermisoDTO;
 import com.truper.sae.commons.dto.RoleDTO;
 import com.truper.sae.commons.dto.UserDTO;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 public class Relationships {
 
 	public static UserDTO directSelfReference(UserDTO u) {
+		log.info("[directSelfReference] :: {} ",u.getUserName());
 		if(u.getUserCreated()!=null) {
 			u.setUserCreated(directSelfReferenceUserWithoutPassword(u.getUserCreated()));
 		}
@@ -23,12 +26,14 @@ public class Relationships {
 	}
 
 	public static List<RoleDTO> directSelfReferenceRoles(List<RoleDTO> roles) {
+		log.info("[directSelfReferenceRoles] ");
 		if(roles!=null) {
 			return roles.stream().map(r->directSelfReferenceRole(r)).collect(Collectors.toList());
 		}
 		return null;
 	}
 	public static RoleDTO directSelfReferenceRole(RoleDTO role) {
+		log.info("[directSelfReferenceRoles] {}",role.getDescripcion());
 		if(role!=null) {
 			if(role.getUserCreated()!=null) {
 				role.setUserCreated(directSelfReferenceUserWithoutPassword(role.getUserCreated()));
@@ -44,12 +49,14 @@ public class Relationships {
 	}
 
 	public static List<PermisoDTO> directSelfReferencePermissions(List<PermisoDTO> permisos) {
+		log.info("[directSelfReferenceRoles] ");
 		if(permisos!=null) {
 			return permisos.stream().map(p->directSelfReferencePermission(p)).collect(Collectors.toList());
 		}
 		return null;
 	}
 	public static PermisoDTO directSelfReferencePermission(PermisoDTO parent) {
+		log.info("[directSelfReferencePermission] :: {} ",parent.getNombrePermiso());
 		if(parent!=null) {
 			if(parent.getUserCreated()!=null) {
 				parent.setUserCreated(directSelfReferenceUserWithoutPassword(parent.getUserCreated()));
@@ -65,6 +72,7 @@ public class Relationships {
 	}
 
 	public static UserDTO directSelfReferenceUserWithoutPassword(UserDTO user) {
+		log.info("[directSelfReferenceUserWithoutPassword] :: {} ",user.getUserName());
 		if(user.getRoles()!=null) {
 			user.setRoles(null);
 		}
