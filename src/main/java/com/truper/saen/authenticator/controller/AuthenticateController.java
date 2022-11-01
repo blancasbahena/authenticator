@@ -22,6 +22,7 @@ import com.truper.saen.commons.dto.UserDTO;
 import com.truper.saen.commons.enums.Mensajes;
 import com.truper.saen.commons.utils.Fechas;
 
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
@@ -35,6 +36,7 @@ public class AuthenticateController {
 	private final AuthenticationManager authenticationManager;
 	private ActiveDirectoryConnector AD_CON = ActiveDirectoryConnector.getInstance();
 	@PostMapping
+	@ApiOperation(value = "Servicio para la auntenticacion de usuario / password y regresa token")
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody
 			AuthenticationRequest authenticationRequest) throws Exception {
 		ResponseVO responseVO = ResponseVO.builder()

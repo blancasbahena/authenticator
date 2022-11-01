@@ -5,7 +5,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -93,7 +95,12 @@ public class JWUtil {
 						)).collect(Collectors.toList()));
 				}
 			});
-		return new TokenDTO(roles,permissions!=null?permissions.stream().distinct().collect(Collectors.toList()):null);
+		return new TokenDTO(roles,permissions.stream().filter( distinctByKey(p -> p.getId()) ).collect( Collectors.toList()));
+	}
+	public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) 
+	{
+	    Map<Object, Boolean> map = new ConcurrentHashMap<>();
+	    return t -> map.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
 	}
 	public static String createToken(Map<String, Object> claims, String subject) {
 

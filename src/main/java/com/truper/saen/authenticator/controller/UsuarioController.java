@@ -35,7 +35,7 @@ public class UsuarioController {
 	private final JWUtil jwutil;
 	private final ValidaTokenService tokenService;
 	@GetMapping 
-	@ApiOperation(value = "Url que pide authenticacion con JWT", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio que muestra informacion de un usuario, paramatros {username o id}", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> getUsuarios(@RequestParam(required=false) String userName,@RequestParam(required=false) Long id){
 		log.info("Inicia controller para obtencion de usuarios {} , {} ,{}",userName!=null?userName:"-",id!=null?id:"-",Fechas.getHoraLogeo());
 		String mensaje="Problems in UsuarioController @ GetMapping";
@@ -84,7 +84,7 @@ public class UsuarioController {
 	}
 
 	@PostMapping
-	@ApiOperation(value = "Url que pide authenticacion con JWT", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio para crear un usuario con o sin roles, parametros { DTO }", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> saveUsuarios(@RequestBody UserDTO dto,HttpServletRequest request){
 		log.info("Controller para guardar usuarios  {} {} ",dto.toString(),Fechas.getHoraLogeo());
 		String mensaje="Problems in UsuarioController @ PostMapping";
@@ -123,7 +123,7 @@ public class UsuarioController {
 	}
 
 	@PutMapping("/detail") 
-	@ApiOperation(value = "Url que pide authenticacion con JWT", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio para modificar los detalles un usuario no incluye roles, parametros { DTO }", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> modifyUsuariosOnlyDetail(@RequestBody UserDTO dto,HttpServletRequest request){
 		String mensaje="Problems in UsuarioController @ PutMapping";
 		log.info("Controller para modificar usuarios {}  {}",dto.toString(),Fechas.getHoraLogeo());
@@ -143,7 +143,7 @@ public class UsuarioController {
 		try
 		{
 			dto.setUserModified(usuarioToken);
-			formData.put("result", service.update(dto));
+			formData.put("result", service.updateDetail(dto));
 			log.info("Termina controller para modificar usuarios termina con exito {}",Fechas.getHoraLogeo());
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
@@ -161,7 +161,7 @@ public class UsuarioController {
 				.build());
 	} 
 	@PutMapping 
-	@ApiOperation(value = "Url que pide authenticacion con JWT", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio para modificar un usuario incluyendo roles, parametros { DTO }", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> modifyUsuarios(@RequestBody UserDTO dto,HttpServletRequest request){
 		String mensaje="Problems in UsuarioController @ PutMapping";
 		log.info("Controller para modificar usuarios {}  {}",dto.toString(),Fechas.getHoraLogeo());
@@ -200,7 +200,7 @@ public class UsuarioController {
 	} 
 	
 	@DeleteMapping 
-	@ApiOperation(value = "Url que pide authenticacion con JWT", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio para eleminar logicamente un usuario, parametros { DTO }", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> deleteUsuarios(@RequestBody UserDTO dto,HttpServletRequest request){
 		String mensaje="Problems in UsuarioController @ DeleteMapping";
 		log.info("Controller para borrar usuarios {}  {}",dto.toString(),Fechas.getHoraLogeo());

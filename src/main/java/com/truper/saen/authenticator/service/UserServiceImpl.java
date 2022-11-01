@@ -160,14 +160,14 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public Boolean delete(UserDTO dto) {
+	public Boolean delete(UserDTO dto) throws  Exception{
 		Optional<User> optPer =   userRepository.findById(dto.getId());
 		if(optPer.isPresent()) {
 			optPer.get().setActive(false);
 			userRepository.save(optPer.get());
 			return true;
 		}
-		return false;
+		throw new Exception("Error - Its necesary id from user"); 
 	}
 
 	@Override

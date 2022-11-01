@@ -41,7 +41,7 @@ public class PermisosController {
 	private final ValidaTokenService tokenService;
 	private final UserService serviceUser;
 	@GetMapping
-	@ApiOperation(value = "Servicio para consultar permiso@", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio para consultar un permiso o varios, parametros{vacios, idPermiso o nombrePermiso}", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> getUsuarios(@RequestParam(required=false) Long idRol,@RequestParam(required=false) Long idPermiso,
 			@RequestParam(required=false) String nombrePermiso,@RequestHeader("Authorization") String authorization){
 		String mensaje="Problems in PermisosController @ GetMapping";
@@ -102,7 +102,7 @@ public class PermisosController {
 	}
 
 	@PostMapping
-	@ApiOperation(value = "Servicio para crear crear un permiso", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio para crear crear un permiso, parametro { DTO }", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> saveUsuarios(@RequestBody PermisoDTO dto,HttpServletRequest request){
 		log.info("Controller para guardar roles  {} ,{}",dto.toString(),Fechas.getHoraLogeo());
 		String mensaje="Problems in PermisosController @ PostMapping";
@@ -140,7 +140,7 @@ public class PermisosController {
 				.build());
 	}
 	@PutMapping 
-	@ApiOperation(value = "Servicio para crear modificar un permiso", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio para crear modificar un permiso, parametro { DTO }", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> modifyUsuarios(@RequestBody PermisoDTO dto,HttpServletRequest request){
 		String mensaje="Problems in PermisosController @ PutMapping";
 		log.info("Controller para modificar roles {}  {} ",dto.toString(),Fechas.getHoraLogeo());
@@ -179,7 +179,7 @@ public class PermisosController {
 	} 
 	
 	@DeleteMapping 
-	@ApiOperation(value = "Servicio para dea-activar permiso", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio para des-activar un permiso, parametro { DTO }", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> deleteUsuarios(@RequestBody PermisoDTO dto,HttpServletRequest request){
 		String mensaje="Problems in PermisosController @ DeleteMapping";
 		log.info("Controller para borrar roles {} ,{}",dto.toString(),Fechas.getHoraLogeo());
@@ -217,7 +217,7 @@ public class PermisosController {
 				.build());
 	}
 	@PatchMapping("/append")
-	@ApiOperation(value = "Servicio para agregar un nuevo permiso a un rol", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio para agregar un permiso a un rol, parametro { idRol y idPermission }", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> appendPermissionToRol(@RequestParam(required=true) Long idRol,
 			@RequestParam(required=true) Long idPermission,HttpServletRequest request){
 		String mensaje="Problems in PermisosController @PatchMapping";
@@ -255,7 +255,7 @@ public class PermisosController {
 				.build());
 	}
 	@PatchMapping("/remove")
-	@ApiOperation(value = "Servicio para agregar un nuevo permiso a un rol", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio para remover permiso a un rol, parametro { idRol y idPermission }", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> removePermissionToRol(@RequestParam(required=true) Long idRol,
 			@RequestParam(required=true) Long idPermission,HttpServletRequest request){
 		String mensaje="Problems in PermisosController @PatchMapping";

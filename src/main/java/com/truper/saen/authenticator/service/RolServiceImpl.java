@@ -33,7 +33,7 @@ public class RolServiceImpl implements RolService {
 	private final ModelMapper modelMapper;
 	private final UserRepository userRepository;
 	@Override
-	public Boolean save(RoleDTO dto) {
+	public Boolean save(RoleDTO dto) throws  Exception{
 		List<Permiso> listaPermisos= null;
 		Optional<Role> busqueda =   roleRepository.findByDescripcion(dto.getDescripcion());
 		Optional<User> userOpt=userRepository.findById(dto.getUserCreated().getId());
@@ -64,7 +64,7 @@ public class RolServiceImpl implements RolService {
 	}
 
 	@Override
-	public Boolean update(RoleDTO dto) {
+	public Boolean update(RoleDTO dto) throws  Exception {
 		List<Permiso> listaPermisos= null;
 		Optional<Role> optPer =   roleRepository.findById(dto.getId());
 		Optional<Role> busqueda =   roleRepository.findByDescripcion(dto.getDescripcion());
@@ -98,7 +98,7 @@ public class RolServiceImpl implements RolService {
 		return false;
 	}
 	@Override
-	public Boolean updateDetail(RoleDTO dto) {
+	public Boolean updateDetail(RoleDTO dto) throws  Exception{
 		Optional<Role> optPer =   roleRepository.findById(dto.getId());
 		Optional<Role> busqueda =   roleRepository.findByDescripcion(dto.getDescripcion());
 		User userModified=null;
@@ -124,7 +124,7 @@ public class RolServiceImpl implements RolService {
 		return false;
 	}
 	@Override
-	public Boolean delete(RoleDTO dto) {
+	public Boolean delete(RoleDTO dto) throws  Exception{
 		Optional<Role> optPer =   roleRepository.findById(dto.getId());
 		if(optPer.isPresent()) {
 			optPer.get().setActive(false);
@@ -147,7 +147,7 @@ public class RolServiceImpl implements RolService {
 	}
 	
 	@Override
-	public Boolean removeRoleToUser(Long idUser,Long idRol,UserDTO userDTO) {
+	public Boolean removeRoleToUser(Long idUser,Long idRol,UserDTO userDTO) throws  Exception{
 		Optional<Role> optRol =   roleRepository.findById(idRol);
 		Optional<User> userOpt=userRepository.findById(idUser);
 		Optional<User> optModf =   userRepository.findById(userDTO.getId());
@@ -161,7 +161,7 @@ public class RolServiceImpl implements RolService {
 	}
 	
 	@Override
-	public Boolean appendRoleToUser(Long idUser,Long idRol,UserDTO userDTO) {
+	public Boolean appendRoleToUser(Long idUser,Long idRol,UserDTO userDTO) throws  Exception{
 		Optional<Role> optRol =   roleRepository.findById(idRol);
 		Optional<User> userOpt=userRepository.findById(idUser);
 		Optional<User> optModf =   userRepository.findById(userDTO.getId());

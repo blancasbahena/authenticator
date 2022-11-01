@@ -4,14 +4,15 @@ import java.io.Serializable;
 import java.util.Date;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
 public class PermisoDTO implements Serializable {
@@ -33,18 +34,17 @@ public class PermisoDTO implements Serializable {
 	private String url;
 
 	private String icon;
-
-	private String identifierAccion;
-
-	private String tooltip;
-
-	private Date created;
-
-    private UserDTO userModified;
 	
-	private Date modified;
-
-    private UserDTO userCreated;	
-
+	private String identifierAccion;
+	
+	private String tooltip;
+	
+	private Date created;
+	
+	private UserDTO userModified;
+	
+    private Date modified;
+    
+	private UserDTO userCreated;	
 
 }

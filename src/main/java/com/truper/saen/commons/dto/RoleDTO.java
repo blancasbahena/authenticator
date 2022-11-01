@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoleDTO implements Serializable {
@@ -22,7 +24,7 @@ public class RoleDTO implements Serializable {
 	private Long id;
 
 	private String descripcion;
-
+	
 	private Boolean active;
 
 	private Date created;

@@ -25,7 +25,7 @@ public class DecipherController {
 	
 	private final JWUtil jwutil;
 	@RequestMapping(value = "/decipher", method = RequestMethod.GET)
-	@ApiOperation(value = "Url que pide authenticacion con JWT", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio para decifrar el token y revisa si es valido", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> decipherToken(ServletRequest request, @RequestHeader("Authorization") String authorization) 
 	{
 		log.info("Inicia proceso para validacion del token {} , {} ",authorization,Fechas.getHoraLogeo());

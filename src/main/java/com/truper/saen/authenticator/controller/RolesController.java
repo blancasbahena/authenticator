@@ -41,7 +41,7 @@ public class RolesController {
 	private final JWUtil jwutil;
 	private final ValidaTokenService tokenService;
 	@GetMapping 
-	@ApiOperation(value = "Servicio que regresa todos roles, por idUser o idRol ", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio que regresa todos o un role, parametros { vacios, idUser o idRol } ", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> get(@RequestParam(required=false) Long idUser,@RequestParam(required=false) Long idRol
 			,@RequestHeader("Authorization") String authorization){
 		String mensaje="Problems in RolesController @ GetMapping";
@@ -98,7 +98,7 @@ public class RolesController {
 	}
 
 	@PostMapping
-	@ApiOperation(value = "Servicio para crear un rol con permisos", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio para crear un rol con o sin permisos, parametros { DTO }", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> save(@RequestBody RoleDTO dto,HttpServletRequest request){
 		log.info("Controller para guardar roles  {} , {} ",dto.toString(),Fechas.getHoraLogeo());
 		String mensaje="Problems in RolesController @ PostMapping";
@@ -136,7 +136,7 @@ public class RolesController {
 				.build());
 	}
 	@PutMapping 
-	@ApiOperation(value = "Servicio para modificar rol y permisos", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio para modificar rol y permisos, parametros { DTO }", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> modify(@RequestBody RoleDTO dto,HttpServletRequest request){
 		String mensaje="Problems in RolesController @ PutMapping";
 		log.info("Controller para modificar roles {}  , {}",dto.toString(),Fechas.getHoraLogeo());
@@ -174,7 +174,7 @@ public class RolesController {
 				.build());
 	} 
 	@PutMapping("/detail")
-	@ApiOperation(value = "Servicio para modificar rol y permisos", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio para modificar solo detalle de role, parametros { DTO } ", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> modifyDetail(@RequestBody RoleDTO dto,HttpServletRequest request){
 		String mensaje="Problems in RolesController @ PutMapping";
 		log.info("Controller para modificar roles {}  , {}",dto.toString(),Fechas.getHoraLogeo());
@@ -213,7 +213,7 @@ public class RolesController {
 	} 
 	
 	@DeleteMapping 
-	@ApiOperation(value = "Servicio para borrar roles", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio para borrar roles, parametros { DTO }", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> delete(@RequestBody RoleDTO dto,HttpServletRequest request){
 		String mensaje="Problems in RolesController @ DeleteMapping";
 		log.info("Servicio para borrar roles {} ",dto.toString());
@@ -252,7 +252,7 @@ public class RolesController {
 	}
 	
 	@PatchMapping("/append")
-	@ApiOperation(value = "Servicio para agregar un rol a un usuario", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio para agregar un rol a un usuario, parametros { idUser y idRol }", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> appendRoleToUser(@RequestParam(required=true) Long idUser,@RequestParam(required=true) Long idRol
 			,HttpServletRequest request){
 		String mensaje="Problems in PermisosController @PatchMapping";
@@ -291,7 +291,7 @@ public class RolesController {
 				.build());
 	}
 	@PatchMapping("/remove")
-	@ApiOperation(value = "Servicio para elimniar un rol a un usuario", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio para remover un rol a un usuario,parametros { idUser y idRol }", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> RoleToUser(@RequestParam(required=true) Long idUser,@RequestParam(required=true) Long idRol
 			,HttpServletRequest request){
 		String mensaje="Problems in PermisosController @PatchMapping";
