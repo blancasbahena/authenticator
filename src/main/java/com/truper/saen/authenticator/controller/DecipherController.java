@@ -1,4 +1,7 @@
 package com.truper.saen.authenticator.controller;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.ServletRequest;
 
 import org.apache.http.HttpStatus;
@@ -36,9 +39,13 @@ public class DecipherController {
 				authorization = authorization.substring(7);
 			}
 			if(jwutil.validateToken(authorization)) {
+				Map<String, Object> formData = new HashMap<>();
+				formData.put("response", new Boolean(true));
 				log.info("Termina proceso para validacion del token {} ",Fechas.getHoraLogeo());
 				return ResponseEntity.ok(ResponseVO.builder()
 						.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
+						.folio(ResponseVO.getFolioActual())
+						.data(formData)
 						.mensaje(Mensajes.MSG_TOKEN_EXITO.getMensaje())
 						.build());
 			}
@@ -51,6 +58,7 @@ public class DecipherController {
 		ResponseVO responseVO = ResponseVO.builder()
 		.tipoMensaje(mensajeError)
 		.mensaje(mensajeError)
+		.folio(ResponseVO.getFolioActual())
 		.build();
 		log.info("Termina proceso para validacion del token con error {} ",Fechas.getHoraLogeo());
 		return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body(responseVO);			

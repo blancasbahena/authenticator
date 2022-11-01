@@ -42,6 +42,7 @@ public class AuthenticateController {
 		ResponseVO responseVO = ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 				.mensaje("Problems with user in Data Base")
+				.folio(ResponseVO.getFolioActual())
 				.build();
 		try{
 			log.info("Inicia proceso para authenticaion {} , {} ",authenticationRequest.getUsername(),Fechas.getHoraLogeo());
@@ -53,12 +54,14 @@ public class AuthenticateController {
 			if(dto!=null) {
 				log.info("Termina proceso para authenticaion   {} ", Fechas.getHoraLogeo());
 				return ResponseEntity.ok(AuthenticationResponse.builder()
-					.jwt(jwutil.generaToken(userDetails,dto))
-					.build());
+						.folio(ResponseVO.getFolioActual())
+						.jwt(jwutil.generaToken(userDetails,dto))
+						.build());
 			}
 		}catch(Exception e) {
 			log.error("Problems with Authentication: {} ",e.getMessage());
 			responseVO.setMensaje(e.getMessage());
+			responseVO.setFolio(ResponseVO.getFolioActual());
 		}
 		log.info("Termina proceso para authenticaion con error  {} ", Fechas.getHoraLogeo());
 		return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body(responseVO);		

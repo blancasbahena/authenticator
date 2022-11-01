@@ -76,6 +76,7 @@ public class RolesController {
 				return ResponseEntity.ok(ResponseVO.builder()
 						.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 						.mensaje(Mensajes.MSG_NODATA.getMensaje())
+						.folio(ResponseVO.getFolioActual())
 						.build());
 			}
 			if(exito) {
@@ -83,6 +84,7 @@ public class RolesController {
 				return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.data(formData)
 					.build());
 			}
@@ -93,6 +95,7 @@ public class RolesController {
 		log.info("Termina controller para obtencion de roles con error(2) {}",Fechas.getHoraLogeo());
 		return ResponseEntity.ok(ResponseVO.builder()
 			.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+			.folio(ResponseVO.getFolioActual())
 			.mensaje(mensaje)
 			.build());
 	}
@@ -113,6 +116,7 @@ public class RolesController {
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 					.mensaje(mensaje)
+					.folio(ResponseVO.getFolioActual())
 					.build());
 		}
 		try
@@ -124,6 +128,7 @@ public class RolesController {
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
 					.data(formData)
+					.folio(ResponseVO.getFolioActual())
 					.build());
 		} catch (Exception e) {
 			log.error("Error: {}",e.getMessage());
@@ -133,6 +138,7 @@ public class RolesController {
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 				.mensaje(mensaje)
+				.folio(ResponseVO.getFolioActual())
 				.build());
 	}
 	@PutMapping 
@@ -151,6 +157,7 @@ public class RolesController {
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 					.mensaje(mensaje)
+					.folio(ResponseVO.getFolioActual())
 					.build());
 		}
 		try
@@ -162,6 +169,7 @@ public class RolesController {
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
 					.data(formData)
+					.folio(ResponseVO.getFolioActual())
 					.build());
 		} catch (Exception e) {
 			log.error("Error: {}",e.getMessage());
@@ -171,6 +179,7 @@ public class RolesController {
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 				.mensaje(mensaje)
+				.folio(ResponseVO.getFolioActual())
 				.build());
 	} 
 	@PutMapping("/detail")
@@ -189,6 +198,7 @@ public class RolesController {
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 					.mensaje(mensaje)
+					.folio(ResponseVO.getFolioActual())
 					.build());
 		}
 		try
@@ -200,6 +210,7 @@ public class RolesController {
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
 					.data(formData)
+					.folio(ResponseVO.getFolioActual())
 					.build());
 		} catch (Exception e) {
 			log.error("Error: {}",e.getMessage());
@@ -209,6 +220,7 @@ public class RolesController {
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 				.mensaje(mensaje)
+				.folio(ResponseVO.getFolioActual())
 				.build());
 	} 
 	
@@ -228,6 +240,7 @@ public class RolesController {
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 					.mensaje(mensaje)
+					.folio(ResponseVO.getFolioActual())
 					.build());
 		}
 		try
@@ -239,6 +252,7 @@ public class RolesController {
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
 					.data(formData)
+					.folio(ResponseVO.getFolioActual())
 					.build());
 		} catch (Exception e) {
 			log.error("Error: {}",e.getMessage());
@@ -248,6 +262,7 @@ public class RolesController {
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 				.mensaje(mensaje)
+				.folio(ResponseVO.getFolioActual())
 				.build());
 	}
 	
@@ -268,6 +283,7 @@ public class RolesController {
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 					.mensaje(mensaje)
+					.folio(ResponseVO.getFolioActual())
 					.build());
 		}
 		try
@@ -279,6 +295,7 @@ public class RolesController {
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
 					.data(formData)
+					.folio(ResponseVO.getFolioActual())
 					.build());
 		} catch (Exception e) {
 			log.error("Error: {}",e.getMessage());
@@ -288,6 +305,7 @@ public class RolesController {
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 				.mensaje(mensaje)
+				.folio(ResponseVO.getFolioActual())
 				.build());
 	}
 	@PatchMapping("/remove")
@@ -306,6 +324,7 @@ public class RolesController {
 			mensaje =  e.getMessage();
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.mensaje(mensaje)
 					.build());
 		}
@@ -317,6 +336,7 @@ public class RolesController {
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.data(formData)
 					.build());
 		} catch (Exception e) {
@@ -326,6 +346,7 @@ public class RolesController {
 		log.info("Termina controller para borrar permisos con error {} ",Fechas.getHoraLogeo());
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+				.folio(ResponseVO.getFolioActual())
 				.mensaje(mensaje)
 				.build());
 	}

@@ -43,7 +43,12 @@ public class JWUtil {
 
 	private static Claims extraxtAllClaims(String token) {
 		return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+	} 
+	public static Integer extractId(String token) {
+		Claims claims=extraxtAllClaims(token);
+		return (Integer) claims.get("id");
 	}
+	
 
 	private static Boolean istokenExpired(String token) {
 		return extractExpiration(token).before(new Date());
@@ -111,6 +116,7 @@ public class JWUtil {
 
 	public static Boolean validateToken(String token) {
 		final String userName = extractUsername(token);
+		Integer id =extractId(token);
 		return (!istokenExpired(token));
 	}
 

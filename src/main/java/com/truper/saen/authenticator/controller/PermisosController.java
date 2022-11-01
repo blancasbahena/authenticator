@@ -80,6 +80,7 @@ public class PermisosController {
 				return ResponseEntity.ok(ResponseVO.builder()
 						.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 						.mensaje(Mensajes.MSG_NODATA.getMensaje())
+						.folio(ResponseVO.getFolioActual())
 						.build());
 			}
 			if(exito) {
@@ -87,6 +88,7 @@ public class PermisosController {
 				return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.data(formData)
 					.build());
 			}
@@ -97,6 +99,7 @@ public class PermisosController {
 		log.info("Termina controller de obtencion de permisos con error(2) {}",Fechas.getHoraLogeo());
 		return ResponseEntity.ok(ResponseVO.builder()
 			.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+			.folio(ResponseVO.getFolioActual())
 			.mensaje(mensaje)
 			.build());
 	}
@@ -116,6 +119,7 @@ public class PermisosController {
 			mensaje =  e.getMessage();
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.mensaje(mensaje)
 					.build());
 		}
@@ -127,6 +131,7 @@ public class PermisosController {
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.data(formData)
 					.build());
 		} catch (Exception e) {
@@ -137,6 +142,7 @@ public class PermisosController {
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 				.mensaje(mensaje)
+				.folio(ResponseVO.getFolioActual())
 				.build());
 	}
 	@PutMapping 
@@ -154,6 +160,7 @@ public class PermisosController {
 			mensaje =  e.getMessage();
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.mensaje(mensaje)
 					.build());
 		}
@@ -165,6 +172,7 @@ public class PermisosController {
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.data(formData)
 					.build());
 		} catch (Exception e) {
@@ -174,6 +182,7 @@ public class PermisosController {
 		log.info("Termina controller para modificar permisos con error {}",Fechas.getHoraLogeo());
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+				.folio(ResponseVO.getFolioActual())
 				.mensaje(mensaje)
 				.build());
 	} 
@@ -193,6 +202,7 @@ public class PermisosController {
 			mensaje =  e.getMessage();
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.mensaje(mensaje)
 					.build());
 		}
@@ -213,6 +223,7 @@ public class PermisosController {
 		log.info("Termina controller para borrar permisos con error {} ",Fechas.getHoraLogeo());
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+				.folio(ResponseVO.getFolioActual())
 				.mensaje(mensaje)
 				.build());
 	}
@@ -232,6 +243,7 @@ public class PermisosController {
 			mensaje =  e.getMessage();
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.mensaje(mensaje)
 					.build());
 		}
@@ -241,6 +253,7 @@ public class PermisosController {
 			log.info("Termina controller para borrar roles con exito {}",Fechas.getHoraLogeo());
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
 					.data(formData)
 					.build());
@@ -251,6 +264,7 @@ public class PermisosController {
 		log.info("Termina controller para borrar permisos con error {} ",Fechas.getHoraLogeo());
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+				.folio(ResponseVO.getFolioActual())
 				.mensaje(mensaje)
 				.build());
 	}
@@ -270,6 +284,7 @@ public class PermisosController {
 			mensaje =  e.getMessage();
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.mensaje(mensaje)
 					.build());
 		}
@@ -281,6 +296,7 @@ public class PermisosController {
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.data(formData)
 					.build());
 		} catch (Exception e) {
@@ -290,6 +306,7 @@ public class PermisosController {
 		log.info("Termina controller para borrar permisos con error {} ",Fechas.getHoraLogeo());
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+				.folio(ResponseVO.getFolioActual())
 				.mensaje(mensaje)
 				.build());
 	}

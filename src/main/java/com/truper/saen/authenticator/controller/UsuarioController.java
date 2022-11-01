@@ -61,6 +61,7 @@ public class UsuarioController {
 				log.info("Termina controller para obtencion de usuarios con error(1) {}",Fechas.getHoraLogeo());
 				return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.mensaje(Mensajes.MSG_NODATA.getMensaje())
 					.build());
 			}
@@ -69,6 +70,7 @@ public class UsuarioController {
 				return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.data(formData)
 					.build());
 			}
@@ -79,6 +81,7 @@ public class UsuarioController {
 		log.info("Termina controller para obtencion de usuarios con error(2) {} ",Fechas.getHoraLogeo() );
 		return ResponseEntity.ok(ResponseVO.builder()
 			.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+			.folio(ResponseVO.getFolioActual())
 			.mensaje(mensaje)
 			.build());
 	}
@@ -110,6 +113,7 @@ public class UsuarioController {
 				.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 				.mensaje(Mensajes.MSG_EXITO.getMensaje())
 				.data(formData)
+				.folio(ResponseVO.getFolioActual())
 				.build());
 		} catch (Exception e) {
 			log.error("Error: {}",e.getMessage());
@@ -119,6 +123,7 @@ public class UsuarioController {
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 				.mensaje(mensaje)
+				.folio(ResponseVO.getFolioActual())
 				.build());
 	}
 
@@ -137,6 +142,7 @@ public class UsuarioController {
 			mensaje =  e.getMessage();
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.mensaje(mensaje)
 					.build());
 		}
@@ -148,6 +154,7 @@ public class UsuarioController {
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.data(formData)
 					.build());
 		} catch (Exception e) {
@@ -157,6 +164,7 @@ public class UsuarioController {
 		log.info("Termina controller para modificar usuarios termina con error {}",Fechas.getHoraLogeo());
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+				.folio(ResponseVO.getFolioActual())
 				.mensaje(mensaje)
 				.build());
 	} 
@@ -175,6 +183,7 @@ public class UsuarioController {
 			mensaje =  e.getMessage();
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.mensaje(mensaje)
 					.build());
 		}
@@ -186,6 +195,7 @@ public class UsuarioController {
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.data(formData)
 					.build());
 		} catch (Exception e) {
@@ -196,6 +206,7 @@ public class UsuarioController {
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 				.mensaje(mensaje)
+				.folio(ResponseVO.getFolioActual())
 				.build());
 	} 
 	
@@ -214,6 +225,7 @@ public class UsuarioController {
 			mensaje =  e.getMessage();
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.mensaje(mensaje)
 					.build());
 		}
@@ -225,6 +237,7 @@ public class UsuarioController {
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
+					.folio(ResponseVO.getFolioActual())
 					.data(formData)
 					.build());
 		} catch (Exception e) {
@@ -234,6 +247,7 @@ public class UsuarioController {
 		log.info("Termina controller para borrar usuarios termina con error {}",Fechas.getHoraLogeo());
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+				.folio(ResponseVO.getFolioActual())
 				.mensaje(mensaje)
 				.build());
 	}
