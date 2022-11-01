@@ -8,7 +8,6 @@ import javax.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import com.truper.sae.commons.dto.PermisoDTO;
 import com.truper.saen.authenticator.entities.Permiso;
 import com.truper.saen.authenticator.entities.Relationships;
 import com.truper.saen.authenticator.entities.Role;
@@ -16,6 +15,8 @@ import com.truper.saen.authenticator.entities.User;
 import com.truper.saen.authenticator.repository.PermisoRepository;
 import com.truper.saen.authenticator.repository.RoleRepository;
 import com.truper.saen.authenticator.repository.UserRepository;
+import com.truper.saen.commons.dto.PermisoDTO;
+import com.truper.saen.commons.dto.UserDTO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -114,7 +115,32 @@ public class PermisosServiceImpl implements PermisosService {
 		}
 		return false;
 	}
-
+	@Override
+	public Boolean appendPermissionToRol(Long idRol, Long idPermission,UserDTO userDTO) {
+		Optional<Role> optRol =   roleRepository.findById(idRol);
+		Optional<Permiso> optPer =   permisoRepository.findById(idPermission);
+		Optional<User> optModf =   userRepository.findById(userDTO.getId());
+		if(optRol.isPresent() && optPer.isPresent()) {
+			optRol.get().getPermisos().add(optPer.get());
+			optRol.get().setUserModified(optModf.get());
+			roleRepository.save(optRol.get());
+			return true;
+		}
+		return false;
+	}
+	@Override
+	public Boolean removePermissionToRol(Long idRol, Long idPermission,UserDTO userDTO) {
+		Optional<Role> optRol =   roleRepository.findById(idRol);
+		Optional<Permiso> optPer =   permisoRepository.findById(idPermission);
+		Optional<User> optModf =   userRepository.findById(userDTO.getId());
+		if(optRol.isPresent() && optPer.isPresent()) {
+			optRol.get().getPermisos().remove(optPer.get());
+			optRol.get().setUserModified(optModf.get());
+			roleRepository.save(optRol.get());
+			return true;
+		}
+		return false;
+	}
 	@Override
 	public List<PermisoDTO> findByRole(Long idRol) {
 		Optional<Role> optRol =   roleRepository.findById(idRol);
@@ -128,6 +154,14 @@ public class PermisosServiceImpl implements PermisosService {
 	@Override
 	public PermisoDTO findById(Long idPer) {
 		Optional<Permiso> optPer =   permisoRepository.findById(idPer);
+		if(optPer.isPresent()) {
+			return Relationships.directSelfReferencePermission(modelMapper.map(optPer.get(), PermisoDTO.class));
+		}
+		return null;
+	}
+	@Override
+	public PermisoDTO findByNombre(String nombre) {
+		Optional<Permiso> optPer =   permisoRepository.findByNombrePermiso (nombre);
 		if(optPer.isPresent()) {
 			return Relationships.directSelfReferencePermission(modelMapper.map(optPer.get(), PermisoDTO.class));
 		}

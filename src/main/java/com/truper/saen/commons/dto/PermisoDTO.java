@@ -1,4 +1,4 @@
-package com.truper.sae.commons.dto;
+package com.truper.saen.commons.dto;
 
 import java.io.Serializable;
 import java.util.Date;

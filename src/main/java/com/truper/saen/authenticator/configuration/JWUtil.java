@@ -1,5 +1,6 @@
 package com.truper.saen.authenticator.configuration;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -10,10 +11,11 @@ import java.util.stream.Collectors;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import com.truper.sae.commons.dto.PermisoDTO;
-import com.truper.sae.commons.dto.TokenPermisoDTO;
-import com.truper.sae.commons.dto.TokenRoleDTO;
-import com.truper.sae.commons.dto.UserDTO;
+import com.truper.saen.commons.dto.RoleDTO;
+import com.truper.saen.commons.dto.TokenDTO;
+import com.truper.saen.commons.dto.TokenPermisoDTO;
+import com.truper.saen.commons.dto.TokenRoleDTO;
+import com.truper.saen.commons.dto.UserDTO;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -52,17 +54,11 @@ public class JWUtil {
 
 	public static String generaToken(UserDetails userDatails,UserDTO dto) {
 		boolean existenRoles=false;
-		List<TokenRoleDTO> roles=null;
+		TokenDTO token=null;
 		if(dto.getRoles()!=null ) {
 			if(!dto.getRoles().isEmpty()) {
 				existenRoles=true;
-				roles =
-				dto.getRoles().stream().map(m->
-				   new TokenRoleDTO(
-						   m.getDescripcion()!=null?m.getDescripcion():"",
-								   m.getPermisos().stream().map(p->modelTokenPermiso(p)).collect(Collectors.toList()))
-							).collect(Collectors.toList());
-				existenRoles=true;
+				token= modelTokenPermiso(dto.getRoles());
 			}
 		}
 		Map<String, Object> claims = new HashMap<>();
@@ -70,24 +66,34 @@ public class JWUtil {
 	    claims.put("email", dto.getEmail());
 	    claims.put("name", dto.getName());
 	    if(existenRoles) {
-	    	claims.put("roles",roles);
+	    	claims.put("token",token);
 	    }
 		return createToken(claims, userDatails.getUsername());
 	}
-	private static TokenPermisoDTO modelTokenPermiso(PermisoDTO dto) {
-		if(dto!=null){
-			return new TokenPermisoDTO(
-				dto.getDescripcion()!=null?dto.getDescripcion():"",
-				dto.getNombrePermiso()!=null?dto.getNombrePermiso():"",
-				modelTokenPermiso(dto.getParent()),
-				dto.getTipo()!=null?dto.getTipo():"",
-				dto.getUrl()!=null?dto.getUrl():"",
-				dto.getIcon()!=null?dto.getIcon():"",
-				dto.getIdentifierAccion()!=null?dto.getIdentifierAccion():"",
-				dto.getTooltip()!=null?dto.getTooltip():""
-				);
-		}
-		return null;
+	private static TokenDTO modelTokenPermiso(List<RoleDTO> rolesDTO) {
+		
+		List<TokenRoleDTO> roles =new ArrayList<TokenRoleDTO>();
+		List<TokenPermisoDTO> permissions=  new ArrayList<TokenPermisoDTO>();
+		rolesDTO.stream().forEach(r->{
+				roles.add(new TokenRoleDTO(r.getId(),r.getDescripcion()));
+				if(r.getPermisos()!=null)
+				{
+					permissions.addAll(
+						r.getPermisos().stream().map(p->
+						new TokenPermisoDTO(
+								p.getId()!=null?p.getId():0l,
+								p.getDescripcion()!=null?p.getDescripcion():"",
+								p.getNombrePermiso()!=null?p.getNombrePermiso():"",
+								p.getParent()!=null?p.getParent().getId():null,
+								p.getTipo()!=null?p.getTipo():"",
+								p.getUrl()!=null?p.getUrl():"",
+								p.getIcon()!=null?p.getIcon():"",
+								p.getIdentifierAccion()!=null?p.getIdentifierAccion():"",
+								p.getTooltip()!=null?p.getTooltip():""
+						)).collect(Collectors.toList()));
+				}
+			});
+		return new TokenDTO(roles,permissions!=null?permissions.stream().distinct().collect(Collectors.toList()):null);
 	}
 	public static String createToken(Map<String, Object> claims, String subject) {
 

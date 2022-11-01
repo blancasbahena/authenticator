@@ -3,9 +3,9 @@ package com.truper.saen.authenticator.entities;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.truper.sae.commons.dto.PermisoDTO;
-import com.truper.sae.commons.dto.RoleDTO;
-import com.truper.sae.commons.dto.UserDTO;
+import com.truper.saen.commons.dto.PermisoDTO;
+import com.truper.saen.commons.dto.RoleDTO;
+import com.truper.saen.commons.dto.UserDTO;
 
 import lombok.extern.slf4j.Slf4j;
 @Slf4j
@@ -35,12 +35,8 @@ public class Relationships {
 	public static RoleDTO directSelfReferenceRole(RoleDTO role) {
 		log.info("[directSelfReferenceRoles] {}",role.getDescripcion());
 		if(role!=null) {
-			if(role.getUserCreated()!=null) {
-				role.setUserCreated(directSelfReferenceUserWithoutPassword(role.getUserCreated()));
-			}
-			if(role.getUserModified()!=null) {
-				role.setUserModified(directSelfReferenceUserWithoutPassword(role.getUserModified()));
-			}
+			role.setUserCreated(null);
+			role.setUserModified(null);
 			if(role.getPermisos()!=null) {
 				role.setPermisos(directSelfReferencePermissions(role.getPermisos()));
 			}
@@ -58,12 +54,8 @@ public class Relationships {
 	public static PermisoDTO directSelfReferencePermission(PermisoDTO parent) {
 		log.info("[directSelfReferencePermission] :: {} ",parent.getNombrePermiso());
 		if(parent!=null) {
-			if(parent.getUserCreated()!=null) {
-				parent.setUserCreated(directSelfReferenceUserWithoutPassword(parent.getUserCreated()));
-			}
-			if(parent.getUserModified()!=null) {
-				parent.setUserModified(directSelfReferenceUserWithoutPassword(parent.getUserModified()));
-			}
+			parent.setUserCreated(null);
+			parent.setUserModified(null);
 			if(parent.getParent()!=null) {
 				parent.setParent(directSelfReferencePermission(parent.getParent()));
 			}

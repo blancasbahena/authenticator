@@ -11,7 +11,6 @@ import javax.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import com.truper.sae.commons.dto.RoleDTO;
 import com.truper.saen.authenticator.entities.Permiso;
 import com.truper.saen.authenticator.entities.Relationships;
 import com.truper.saen.authenticator.entities.Role;
@@ -19,6 +18,8 @@ import com.truper.saen.authenticator.entities.User;
 import com.truper.saen.authenticator.repository.PermisoRepository;
 import com.truper.saen.authenticator.repository.RoleRepository;
 import com.truper.saen.authenticator.repository.UserRepository;
+import com.truper.saen.commons.dto.RoleDTO;
+import com.truper.saen.commons.dto.UserDTO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -84,6 +85,7 @@ public class RolServiceImpl implements RolService {
 				optPer.get().setModified(new Date());
 				optPer.get().setUserModified(userModified);
 				optPer.get().setDescripcion(dto.getDescripcion());
+				optPer.get().setActive(dto.getActive());
 				optPer.get().setPermisos(listaPermisos);
 				roleRepository.save(optPer.get());
 			}catch(Exception e) {
@@ -95,7 +97,32 @@ public class RolServiceImpl implements RolService {
 		}
 		return false;
 	}
-
+	@Override
+	public Boolean updateDetail(RoleDTO dto) {
+		Optional<Role> optPer =   roleRepository.findById(dto.getId());
+		Optional<Role> busqueda =   roleRepository.findByDescripcion(dto.getDescripcion());
+		User userModified=null;
+		Optional<User> userOpt=userRepository.findById(dto.getUserModified().getId());
+		if(userOpt.isPresent()) {
+			userModified = userOpt.get();
+		}
+		if(optPer.isPresent() && userModified!=null) {
+			try {
+				validate(dto,busqueda,false);
+				optPer.get().setModified(new Date());
+				optPer.get().setUserModified(userModified);
+				optPer.get().setDescripcion(dto.getDescripcion());
+				optPer.get().setActive(dto.getActive());
+				roleRepository.save(optPer.get());
+			}catch(Exception e) {
+				log.error("Problems in Role : {}",e.getMessage());
+			}
+		}
+		if(userModified==null) {
+			log.error("Problems with the modifying user");
+		}
+		return false;
+	}
 	@Override
 	public Boolean delete(RoleDTO dto) {
 		Optional<Role> optPer =   roleRepository.findById(dto.getId());
@@ -117,6 +144,34 @@ public class RolServiceImpl implements RolService {
 			}
 		}
 		return Arrays.asList();
+	}
+	
+	@Override
+	public Boolean removeRoleToUser(Long idUser,Long idRol,UserDTO userDTO) {
+		Optional<Role> optRol =   roleRepository.findById(idRol);
+		Optional<User> userOpt=userRepository.findById(idUser);
+		Optional<User> optModf =   userRepository.findById(userDTO.getId());
+		if(optRol.isPresent() && userOpt.isPresent()) {
+			userOpt.get().getRoles().remove(optRol.get());
+			userOpt.get().setUserModified(optModf.get());
+			userRepository.save(userOpt.get());
+			return true;
+		}
+		return false;
+	}
+	
+	@Override
+	public Boolean appendRoleToUser(Long idUser,Long idRol,UserDTO userDTO) {
+		Optional<Role> optRol =   roleRepository.findById(idRol);
+		Optional<User> userOpt=userRepository.findById(idUser);
+		Optional<User> optModf =   userRepository.findById(userDTO.getId());
+		if(optRol.isPresent() && userOpt.isPresent()) {
+			userOpt.get().getRoles().add(optRol.get());
+			userOpt.get().setUserModified(optModf.get());
+			userRepository.save(userOpt.get());
+			return true;
+		}
+		return false;
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package com.truper.sae.commons.dto;
+package com.truper.saen.commons.dto;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -15,24 +15,15 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO implements Serializable {
-	private static final long serialVersionUID = 3398541430416849601L;
+public class RoleDTO implements Serializable {
+
+	private static final long serialVersionUID = -7380089516858626025L;
 
 	private Long id;
 
+	private String descripcion;
+
 	private Boolean active;
-
-	private String userName;
-
-	private String name;
-
-	private String password;
-
-	private String email;
-
-	private Boolean userAD;
-
-	private Boolean pwdReset;
 
 	private Date created;
 
@@ -41,7 +32,7 @@ public class UserDTO implements Serializable {
 	private Date modified;
 
 	private UserDTO userCreated;
-
-	private List<RoleDTO> roles;
+	
+	private List<PermisoDTO> permisos;
 
 }

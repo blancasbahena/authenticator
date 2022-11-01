@@ -2,6 +2,8 @@ package com.truper.saen.authenticator.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,10 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.truper.sae.commons.dto.ResponseVO;
-import com.truper.sae.commons.dto.UserDTO;
-import com.truper.sae.commons.enums.Mensajes;
+import com.truper.saen.authenticator.configuration.JWUtil;
 import com.truper.saen.authenticator.service.UserService;
+import com.truper.saen.authenticator.service.ValidaTokenService;
+import com.truper.saen.commons.dto.ResponseVO;
+import com.truper.saen.commons.dto.UserDTO;
+import com.truper.saen.commons.enums.Mensajes;
+import com.truper.saen.commons.utils.Fechas;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
@@ -27,11 +32,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UsuarioController { 
 	private final  UserService service;
-	
+	private final JWUtil jwutil;
+	private final ValidaTokenService tokenService;
 	@GetMapping 
 	@ApiOperation(value = "Url que pide authenticacion con JWT", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> getUsuarios(@RequestParam(required=false) String userName,@RequestParam(required=false) Long id){
-		log.info("Inicia obtencion de usuarios");
+		log.info("Inicia controller para obtencion de usuarios {} , {} ,{}",userName!=null?userName:"-",id!=null?id:"-",Fechas.getHoraLogeo());
 		String mensaje="Problems in UsuarioController @ GetMapping";
 		try
 		{
@@ -52,14 +58,14 @@ public class UsuarioController {
 				}
 			}
 			else {
-				log.info("Termina obtencion de usuarios con error(1)");
+				log.info("Termina controller para obtencion de usuarios con error(1) {}",Fechas.getHoraLogeo());
 				return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 					.mensaje(Mensajes.MSG_NODATA.getMensaje())
 					.build());
 			}
 			if(exito) {
-				log.info("Termina obtencion de usuarios con exito");
+				log.info("Termina controller para obtencion de usuarios con exito {}",Fechas.getHoraLogeo());
 				return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
@@ -70,7 +76,7 @@ public class UsuarioController {
 			log.error("Error: {}",e.getMessage());
 			mensaje =  e.getMessage();
 		}
-		log.info("Termina obtencion de usuarios con error(2)");
+		log.info("Termina controller para obtencion de usuarios con error(2) {} ",Fechas.getHoraLogeo() );
 		return ResponseEntity.ok(ResponseVO.builder()
 			.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 			.mensaje(mensaje)
@@ -79,39 +85,66 @@ public class UsuarioController {
 
 	@PostMapping
 	@ApiOperation(value = "Url que pide authenticacion con JWT", authorizations = @Authorization(value = "Bearer"))
-	public ResponseEntity<ResponseVO> saveUsuarios(@RequestBody UserDTO dto){
-		log.info("Servicio para guardar usuarios");
+	public ResponseEntity<ResponseVO> saveUsuarios(@RequestBody UserDTO dto,HttpServletRequest request){
+		log.info("Controller para guardar usuarios  {} {} ",dto.toString(),Fechas.getHoraLogeo());
 		String mensaje="Problems in UsuarioController @ PostMapping";
 		Map<String, Object> formData = new HashMap<>();
+		UserDTO usuarioToken =null;
 		try
 		{
-			formData.put("result", service.save(dto));
-			log.info("Servicio para guardar usuarios termina con exito");
+			usuarioToken = tokenService.regresaUsuario(service, jwutil, request);
+		} catch (Exception e) {
+			log.error("Error: {}",e.getMessage());
+			mensaje =  e.getMessage();
 			return ResponseEntity.ok(ResponseVO.builder()
-					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
-					.mensaje(Mensajes.MSG_EXITO.getMensaje())
-					.data(formData)
+					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+					.mensaje(mensaje)
 					.build());
+		}
+		try
+		{
+			dto.setUserCreated(usuarioToken);
+			formData.put("result", service.save(dto));
+			log.info("Termina controller para guardar usuarios termina con exito {}",Fechas.getHoraLogeo());
+			return ResponseEntity.ok(ResponseVO.builder()
+				.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
+				.mensaje(Mensajes.MSG_EXITO.getMensaje())
+				.data(formData)
+				.build());
 		} catch (Exception e) {
 			log.error("Error: {}",e.getMessage());
 			mensaje =  e.getMessage();
 		}
-		log.info("Servicio para guardar usuarios terminad con error");
+		log.info("Termina controller para guardar usuarios terminad con error {}",Fechas.getHoraLogeo());
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 				.mensaje(mensaje)
 				.build());
 	}
-	@PutMapping 
+
+	@PutMapping("/detail") 
 	@ApiOperation(value = "Url que pide authenticacion con JWT", authorizations = @Authorization(value = "Bearer"))
-	public ResponseEntity<ResponseVO> modifyUsuarios(@RequestBody UserDTO dto){
+	public ResponseEntity<ResponseVO> modifyUsuariosOnlyDetail(@RequestBody UserDTO dto,HttpServletRequest request){
 		String mensaje="Problems in UsuarioController @ PutMapping";
-		log.info("Servicio para modificar usuarios");
+		log.info("Controller para modificar usuarios {}  {}",dto.toString(),Fechas.getHoraLogeo());
 		Map<String, Object> formData = new HashMap<>();
+		UserDTO usuarioToken =null;
+		try
+		{	
+			usuarioToken = tokenService.regresaUsuario(service, jwutil, request);
+		} catch (Exception e) {
+			log.error("Error: {}",e.getMessage());
+			mensaje =  e.getMessage();
+			return ResponseEntity.ok(ResponseVO.builder()
+					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+					.mensaje(mensaje)
+					.build());
+		}
 		try
 		{
+			dto.setUserModified(usuarioToken);
 			formData.put("result", service.update(dto));
-			log.info("Servicio para modificar usuarios termina con exito");
+			log.info("Termina controller para modificar usuarios termina con exito {}",Fechas.getHoraLogeo());
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
@@ -121,7 +154,45 @@ public class UsuarioController {
 			log.error("Error: {}",e.getMessage());
 			mensaje =  e.getMessage();
 		}
-		log.info("Servicio para modificar usuarios termina con error");
+		log.info("Termina controller para modificar usuarios termina con error {}",Fechas.getHoraLogeo());
+		return ResponseEntity.ok(ResponseVO.builder()
+				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+				.mensaje(mensaje)
+				.build());
+	} 
+	@PutMapping 
+	@ApiOperation(value = "Url que pide authenticacion con JWT", authorizations = @Authorization(value = "Bearer"))
+	public ResponseEntity<ResponseVO> modifyUsuarios(@RequestBody UserDTO dto,HttpServletRequest request){
+		String mensaje="Problems in UsuarioController @ PutMapping";
+		log.info("Controller para modificar usuarios {}  {}",dto.toString(),Fechas.getHoraLogeo());
+		Map<String, Object> formData = new HashMap<>();
+		UserDTO usuarioToken =null;
+		try
+		{
+			usuarioToken = tokenService.regresaUsuario(service, jwutil, request);
+		} catch (Exception e) {
+			log.error("Error: {}",e.getMessage());
+			mensaje =  e.getMessage();
+			return ResponseEntity.ok(ResponseVO.builder()
+					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+					.mensaje(mensaje)
+					.build());
+		}
+		try
+		{
+			dto.setUserModified(usuarioToken);
+			formData.put("result", service.update(dto));
+			log.info("Termina controller para modificar usuarios termina con exito {}",Fechas.getHoraLogeo());
+			return ResponseEntity.ok(ResponseVO.builder()
+					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
+					.mensaje(Mensajes.MSG_EXITO.getMensaje())
+					.data(formData)
+					.build());
+		} catch (Exception e) {
+			log.error("Error: {}",e.getMessage());
+			mensaje =  e.getMessage();
+		}
+		log.info("Termina controller para modificar usuarios termina con error {}",Fechas.getHoraLogeo());
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 				.mensaje(mensaje)
@@ -130,14 +201,27 @@ public class UsuarioController {
 	
 	@DeleteMapping 
 	@ApiOperation(value = "Url que pide authenticacion con JWT", authorizations = @Authorization(value = "Bearer"))
-	public ResponseEntity<ResponseVO> deleteUsuarios(@RequestBody UserDTO dto){
+	public ResponseEntity<ResponseVO> deleteUsuarios(@RequestBody UserDTO dto,HttpServletRequest request){
 		String mensaje="Problems in UsuarioController @ DeleteMapping";
-		log.info("Servicio para borrar usuarios");
+		log.info("Controller para borrar usuarios {}  {}",dto.toString(),Fechas.getHoraLogeo());
 		Map<String, Object> formData = new HashMap<>();
+		UserDTO usuarioToken =null;
 		try
 		{
+			usuarioToken = tokenService.regresaUsuario(service, jwutil, request);
+		} catch (Exception e) {
+			log.error("Error: {}",e.getMessage());
+			mensaje =  e.getMessage();
+			return ResponseEntity.ok(ResponseVO.builder()
+					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+					.mensaje(mensaje)
+					.build());
+		}
+		try
+		{
+			dto.setUserModified(usuarioToken);
 			formData.put("result", service.delete(dto));
-			log.info("Servicio para borrar usuarios termina con exito");
+			log.info("Termina controller para borrar usuarios termina con exito {}",Fechas.getHoraLogeo());
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 					.mensaje(Mensajes.MSG_EXITO.getMensaje())
@@ -147,7 +231,7 @@ public class UsuarioController {
 			log.error("Error: {}",e.getMessage());
 			mensaje =  e.getMessage();
 		}
-		log.info("Servicio para borrar usuarios termina con error");
+		log.info("Termina controller para borrar usuarios termina con error {}",Fechas.getHoraLogeo());
 		return ResponseEntity.ok(ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 				.mensaje(mensaje)

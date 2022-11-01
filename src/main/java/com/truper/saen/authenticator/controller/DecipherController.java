@@ -1,5 +1,6 @@
 package com.truper.saen.authenticator.controller;
 import javax.servlet.ServletRequest;
+
 import org.apache.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -7,9 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.truper.sae.commons.dto.ResponseVO;
-import com.truper.sae.commons.enums.Mensajes;
 import com.truper.saen.authenticator.configuration.JWUtil;
+import com.truper.saen.commons.dto.ResponseVO;
+import com.truper.saen.commons.enums.Mensajes;
+import com.truper.saen.commons.utils.Fechas;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
@@ -26,6 +28,7 @@ public class DecipherController {
 	@ApiOperation(value = "Url que pide authenticacion con JWT", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> decipherToken(ServletRequest request, @RequestHeader("Authorization") String authorization) 
 	{
+		log.info("Inicia proceso para validacion del token {} , {} ",authorization,Fechas.getHoraLogeo());
 		String mensajeError = "Problem with JWT";
 		try
 		{
@@ -33,6 +36,7 @@ public class DecipherController {
 				authorization = authorization.substring(7);
 			}
 			if(jwutil.validateToken(authorization)) {
+				log.info("Termina proceso para validacion del token {} ",Fechas.getHoraLogeo());
 				return ResponseEntity.ok(ResponseVO.builder()
 						.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
 						.mensaje(Mensajes.MSG_TOKEN_EXITO.getMensaje())
@@ -48,6 +52,7 @@ public class DecipherController {
 		.tipoMensaje(mensajeError)
 		.mensaje(mensajeError)
 		.build();
+		log.info("Termina proceso para validacion del token con error {} ",Fechas.getHoraLogeo());
 		return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body(responseVO);			
 	}
 
