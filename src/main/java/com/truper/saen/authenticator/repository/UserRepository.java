@@ -8,9 +8,10 @@ import org.springframework.stereotype.Repository;
 import com.truper.saen.authenticator.entities.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+ 
 
-	Optional<User> findByUserName(String string);
+	Optional<User> findByUserNameAndActive(String userName, boolean b);
 
-	Optional<User> findByEmail(String email);
+	Optional<User> findByEmailAndActive(String email, boolean b);
 
 }

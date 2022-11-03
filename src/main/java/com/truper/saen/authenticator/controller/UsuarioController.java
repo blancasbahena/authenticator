@@ -126,12 +126,33 @@ public class UsuarioController {
 				.folio(ResponseVO.getFolioActual())
 				.build());
 	}
-
+	@PutMapping 
+	@ApiOperation(value = "Servicio para modificar un usuario incluyendo roles, parametros { DTO }", authorizations = @Authorization(value = "Bearer"))
+	public ResponseEntity<ResponseVO> modifyUsuariosYroles(@RequestBody UserDTO dto,HttpServletRequest request){
+		log.info("Controller para modificar usuarios {}  {}",dto.toString(),Fechas.getHoraLogeo());
+		boolean modificarRoles=true;
+		boolean soloPassword=false;
+		return modifyUsuarios(dto,request,modificarRoles,soloPassword);
+	} 
 	@PutMapping("/detail") 
 	@ApiOperation(value = "Servicio para modificar los detalles un usuario no incluye roles, parametros { DTO }", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> modifyUsuariosOnlyDetail(@RequestBody UserDTO dto,HttpServletRequest request){
-		String mensaje="Problems in UsuarioController @ PutMapping";
 		log.info("Controller para modificar usuarios {}  {}",dto.toString(),Fechas.getHoraLogeo());
+		boolean modificarRoles=false;
+		boolean soloPassword=false;
+		return modifyUsuarios(dto,request,modificarRoles,soloPassword);
+	} 
+	@PutMapping("/password") 
+	@ApiOperation(value = "Servicio para modificar solo el password del usuario no incluye roles, parametros { DTO }", authorizations = @Authorization(value = "Bearer"))
+	public ResponseEntity<ResponseVO> modifyUsuarioPassword(@RequestBody UserDTO dto,HttpServletRequest request){
+		boolean modificarRoles=false;
+		boolean soloPassword=true;
+		log.info("Controller para modificar usuarios {}  {}",dto.toString(),Fechas.getHoraLogeo());
+		return modifyUsuarios(dto,request,modificarRoles,soloPassword);
+		
+	} 
+	public ResponseEntity<ResponseVO> modifyUsuarios(@RequestBody UserDTO dto,HttpServletRequest request,boolean modificarRoles,boolean soloPassword) {
+		String mensaje="Problems in UsuarioController @ PutMapping";
 		Map<String, Object> formData = new HashMap<>();
 		UserDTO usuarioToken =null;
 		try
@@ -149,7 +170,7 @@ public class UsuarioController {
 		try
 		{
 			dto.setUserModified(usuarioToken);
-			formData.put("result", service.updateDetail(dto));
+			formData.put("result", service.update(dto,modificarRoles,soloPassword));
 			log.info("Termina controller para modificar usuarios termina con exito {}",Fechas.getHoraLogeo());
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
@@ -166,47 +187,6 @@ public class UsuarioController {
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 				.folio(ResponseVO.getFolioActual())
 				.mensaje(mensaje)
-				.build());
-	} 
-	@PutMapping 
-	@ApiOperation(value = "Servicio para modificar un usuario incluyendo roles, parametros { DTO }", authorizations = @Authorization(value = "Bearer"))
-	public ResponseEntity<ResponseVO> modifyUsuarios(@RequestBody UserDTO dto,HttpServletRequest request){
-		String mensaje="Problems in UsuarioController @ PutMapping";
-		log.info("Controller para modificar usuarios {}  {}",dto.toString(),Fechas.getHoraLogeo());
-		Map<String, Object> formData = new HashMap<>();
-		UserDTO usuarioToken =null;
-		try
-		{
-			usuarioToken = tokenService.regresaUsuario(service, jwutil, request);
-		} catch (Exception e) {
-			log.error("Error: {}",e.getMessage());
-			mensaje =  e.getMessage();
-			return ResponseEntity.ok(ResponseVO.builder()
-					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
-					.folio(ResponseVO.getFolioActual())
-					.mensaje(mensaje)
-					.build());
-		}
-		try
-		{
-			dto.setUserModified(usuarioToken);
-			formData.put("result", service.update(dto));
-			log.info("Termina controller para modificar usuarios termina con exito {}",Fechas.getHoraLogeo());
-			return ResponseEntity.ok(ResponseVO.builder()
-					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
-					.mensaje(Mensajes.MSG_EXITO.getMensaje())
-					.folio(ResponseVO.getFolioActual())
-					.data(formData)
-					.build());
-		} catch (Exception e) {
-			log.error("Error: {}",e.getMessage());
-			mensaje =  e.getMessage();
-		}
-		log.info("Termina controller para modificar usuarios termina con error {}",Fechas.getHoraLogeo());
-		return ResponseEntity.ok(ResponseVO.builder()
-				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
-				.mensaje(mensaje)
-				.folio(ResponseVO.getFolioActual())
 				.build());
 	} 
 	

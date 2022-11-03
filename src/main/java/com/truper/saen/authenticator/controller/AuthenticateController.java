@@ -7,6 +7,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,7 +38,7 @@ public class AuthenticateController {
 	private ActiveDirectoryConnector AD_CON = ActiveDirectoryConnector.getInstance();
 	@PostMapping
 	@ApiOperation(value = "Servicio para la auntenticacion de usuario / password y regresa token")
-	public ResponseEntity<?> createAuthenticationToken(@RequestBody
+	public ResponseEntity<?> createAuthenticationTokenAD(@RequestBody
 			AuthenticationRequest authenticationRequest) throws Exception {
 		ResponseVO responseVO = ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
@@ -49,6 +50,36 @@ public class AuthenticateController {
 			final UserDetails userDetails = userDetailsServices
 					.loadUserByUsername(authenticationRequest.getUsername());
 			AD_CON.validaLogin(authenticationRequest.getUsername(),authenticationRequest.getPassword());
+			authenticate(authenticationRequest.getUsername(),authenticationRequest.getPassword());
+			UserDTO dto=userService.findByUserName(authenticationRequest.getUsername());
+			if(dto!=null) {
+				log.info("Termina proceso para authenticaion   {} ", Fechas.getHoraLogeo());
+				return ResponseEntity.ok(AuthenticationResponse.builder()
+						.folio(ResponseVO.getFolioActual())
+						.jwt(jwutil.generaToken(userDetails,dto))
+						.build());
+			}
+		}catch(Exception e) {
+			log.error("Problems with Authentication: {} ",e.getMessage());
+			responseVO.setMensaje(e.getMessage());
+			responseVO.setFolio(ResponseVO.getFolioActual());
+		}
+		log.info("Termina proceso para authenticaion con error  {} ", Fechas.getHoraLogeo());
+		return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body(responseVO);		
+	}
+	@PutMapping
+	@ApiOperation(value = "Servicio para la auntenticacion de usuario / password y regresa token")
+	public ResponseEntity<?> createAuthenticationToken(@RequestBody
+			AuthenticationRequest authenticationRequest) throws Exception {
+		ResponseVO responseVO = ResponseVO.builder()
+				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+				.mensaje("Problems with user in Data Base")
+				.folio(ResponseVO.getFolioActual())
+				.build();
+		try{
+			log.info("Inicia proceso para authenticaion {} , {} ",authenticationRequest.getUsername(),Fechas.getHoraLogeo());
+			final UserDetails userDetails = userDetailsServices
+					.loadUserByUsername(authenticationRequest.getUsername());
 			authenticate(authenticationRequest.getUsername(),authenticationRequest.getPassword());
 			UserDTO dto=userService.findByUserName(authenticationRequest.getUsername());
 			if(dto!=null) {

@@ -1,5 +1,4 @@
 package com.truper.saen.authenticator.service;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +14,6 @@ import com.truper.saen.authenticator.entities.Role;
 import com.truper.saen.authenticator.entities.User;
 import com.truper.saen.authenticator.repository.RoleRepository;
 import com.truper.saen.authenticator.repository.UserRepository;
-import com.truper.saen.commons.dto.RoleDTO;
 import com.truper.saen.commons.dto.UserDTO;
 
 import lombok.RequiredArgsConstructor;
@@ -33,8 +31,8 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public Boolean save(UserDTO dto) throws Exception {
 		List<Role> listaRoles= null;
-		Optional<User> busquedaUserName =   userRepository.findByUserName(dto.getUserName());
-		Optional<User> busquedaCorreo =   userRepository.findByEmail(dto.getEmail());
+		Optional<User> busquedaUserName =   userRepository.findByUserNameAndActive(dto.getUserName(),true);
+		Optional<User> busquedaCorreo =   userRepository.findByEmailAndActive(dto.getEmail(),true);
 		if(dto.getUserCreated()!=null) {
 			Optional<User> userOpt=userRepository.findById(dto.getUserCreated().getId());
 			if(userOpt.isPresent()) {
@@ -46,7 +44,7 @@ public class UserServiceImpl implements UserService {
 				if(dto.getActive()==null) {
 					dto.setActive(false);
 				}
-				validate(dto,busquedaUserName,busquedaCorreo,true);
+				validateNuevo(dto,busquedaUserName,busquedaCorreo);
 				User nuevo=modelMapper.map(dto, User.class);
 				nuevo.setCreated(new Date());
 				nuevo.setModified(new Date());
@@ -72,11 +70,11 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public Boolean update(UserDTO dto) throws Exception {
+	public Boolean update(UserDTO dto,boolean modificarRoles,boolean soloPassword) throws Exception {
 		List<Role> listaRoles= null;
+		User  usuarioAmodificar =  null;
 		Optional<User> optPer =   userRepository.findById(dto.getId());
-		Optional<User> busquedaUserName =   userRepository.findByUserName(dto.getUserName());
-		Optional<User> busquedaCorreo =   userRepository.findByEmail(dto.getEmail());
+		Optional<User> busquedaUserName =   userRepository.findByUserNameAndActive(dto.getUserName(),true);
 		if(dto.getUserCreated()!=null) {
 			if(dto.getUserModified()!=null) {
 				Optional<User> userOpt=userRepository.findById(dto.getUserModified().getId());
@@ -85,80 +83,50 @@ public class UserServiceImpl implements UserService {
 				}
 			}
 		}
-		if(optPer.isPresent() && userModified!=null) {
-			if(dto.getRoles()!=null) {
-				if(!dto.getRoles().isEmpty()) {
-					List<Long> ids =dto.getRoles().stream().map(p->p.getId()).collect(Collectors.toList());
-					listaRoles = roleRepository.findByIdIn(ids);
+		if(optPer.isPresent()) {
+			usuarioAmodificar = optPer.get();
+		}
+		else if(busquedaUserName.isPresent()) {
+			usuarioAmodificar = busquedaUserName.get();
+		}
+		if(usuarioAmodificar!=null && userModified!=null) {
+			if(usuarioAmodificar.getActive()) {
+				if(modificarRoles) {
+					if(dto.getRoles()!=null) {
+						if(!dto.getRoles().isEmpty()) {
+							List<Long> ids =dto.getRoles().stream().map(p->p.getId()).collect(Collectors.toList());
+							listaRoles = roleRepository.findByIdIn(ids);
+						}
+					}
 				}
-			}
-			try {
-				validate(dto,busquedaUserName,busquedaCorreo,false);
-				optPer.get().setModified(new Date());
-				optPer.get().setUserModified(userModified);
-				optPer.get().setName(dto.getName());
-				optPer.get().setRoles(listaRoles);
-				optPer.get().setEmail(dto.getEmail());
-				optPer.get().setUserAD(dto.getUserAD());
-				optPer.get().setPwdReset(dto.getPwdReset());
-				optPer.get().setRoles(listaRoles);
-				userRepository.save(optPer.get());
-				return true;
-			}catch(Exception e) {
-				log.error("Problemas en Users : {}",e.getMessage());
-				throw new Exception(e.getMessage());
+				try {
+					validateModificado(dto,userRepository.findAll());				
+					usuarioAmodificar.setModified(new Date());
+					usuarioAmodificar.setUserModified(userModified);
+					if(!soloPassword) {
+						usuarioAmodificar.setName(dto.getName());
+						usuarioAmodificar.setEmail(dto.getEmail());
+						usuarioAmodificar.setUserAD(dto.getUserAD());
+						usuarioAmodificar.setPwdReset(dto.getPwdReset());
+					}
+					if(modificarRoles) {
+						usuarioAmodificar.setRoles(listaRoles);
+					}
+					if(soloPassword) {
+						usuarioAmodificar.setPassword(dto.getPassword());
+					}
+					userRepository.save(optPer.get());
+					return true;
+				}catch(Exception e) {
+					log.error("Problemas en Users : {}",e.getMessage());
+					throw new Exception(e.getMessage());
+				}
+			}else {
+				throw new Exception("Error - User is disable");
 			}
 		} 
 		return false;
-	}
-	@Override
-	public Boolean updateDetail(UserDTO dto) throws Exception {
-		List<Role> listaRoles= null;
-		Optional<User> optPer =   userRepository.findById(dto.getId());
-		Optional<User> busquedaUserName =   userRepository.findByUserName(dto.getUserName());
-		Optional<User> busquedaCorreo =   userRepository.findByEmail(dto.getEmail());
-		if(dto.getUserCreated()!=null) {
-			if(dto.getUserModified()!=null) {
-				Optional<User> userOpt=userRepository.findById(dto.getUserModified().getId());
-				if(userOpt.isPresent()) {
-					userModified = userOpt.get();
-				}
-			}
-		}
-		if(optPer.isPresent() && userModified!=null) {
-			try {
-				validate(dto,busquedaUserName,busquedaCorreo,false);
-				optPer.get().setModified(new Date());
-				optPer.get().setUserModified(userModified);
-				optPer.get().setName(dto.getName());
-				optPer.get().setRoles(listaRoles);
-				optPer.get().setEmail(dto.getEmail());
-				optPer.get().setUserAD(dto.getUserAD());
-				optPer.get().setPwdReset(dto.getPwdReset());
-				userRepository.save(optPer.get());
-				return true;
-			}catch(Exception e) {
-				log.error("Problemas en Users : {}",e.getMessage());
-				throw new Exception(e.getMessage());
-			}
-		} 
-		return false;
-	}
-
-	private List<Long> consultaPermisos(Long id, List<RoleDTO> roles) {
-		List<Long> idsPermisos = Arrays.asList();
-		Optional<RoleDTO> role=
-				roles.stream().filter(r -> r.getId().longValue() == id.longValue()).findAny();
-		if(role.isPresent()) {
-			if(role.get().getPermisos()!=null) {
-				idsPermisos=
-					role.get().getPermisos().stream()
-						.map(p->p.getId()).collect(Collectors.toList());
-			}
-		}
-		return idsPermisos;
-	}
-
+	} 
 	@Override
 	public Boolean delete(UserDTO dto) throws  Exception{
 		Optional<User> optPer =   userRepository.findById(dto.getId());
@@ -181,13 +149,55 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDTO findByUserName(String userName) {
-		Optional<User> optPer =   userRepository.findByUserName(userName);
+		Optional<User> optPer =   userRepository.findByUserNameAndActive(userName,true);
 		if(optPer.isPresent()) {
 			return  Relationships.directSelfReference(modelMapper.map(optPer.get(), UserDTO.class));
 		}
 		return null;
 	}
-	private void validate(UserDTO dto, Optional<User> busquedaUserName,Optional<User> busquedaCorreo, boolean isNew) throws  Exception{
+	
+	private void validateModificado(UserDTO dto,List<User> lista) throws  Exception{
+		validate(dto);
+		if(dto.getId()==null) {
+			throw new Exception("Error - Id -Its required");
+		}
+		List<User> listaBusquedaUserName = lista.stream().filter(u-> u.getUserName().equals(dto.getUserName())).collect(Collectors.toList());
+		List<User> listaBusquedaCorreo = lista.stream().filter(u-> u.getEmail().equals(dto.getEmail())).collect(Collectors.toList());
+		if(!listaBusquedaUserName.isEmpty()) {
+			if(listaBusquedaUserName.size()==1) {
+				Optional<User> userM=listaBusquedaUserName.stream().filter(u-> u.getId().longValue() ==  dto.getId().longValue()).findFirst();
+				if(!userM.isPresent()) {
+					throw new Exception("Error - Problems with duplicate ["+dto.getUserName()+"]");
+				}
+			}else {
+				throw new Exception("Error - Problems with duplicate ["+dto.getUserName()+"]");
+			}
+		}
+		if(!listaBusquedaCorreo.isEmpty()) {
+			if(listaBusquedaCorreo.size()==1) {
+				Optional<User> userM=listaBusquedaCorreo.stream().filter(u-> u.getId().longValue() ==  dto.getId().longValue()).findFirst();
+				if(!userM.isPresent()) {
+					throw new Exception("Error - Problems with duplicate ["+dto.getEmail()+"]");
+				}
+			}else {
+				throw new Exception("Error - Problems with duplicate ["+dto.getEmail()+"]");
+			}
+		}
+	}
+	private void validateNuevo(UserDTO dto, Optional<User> busquedaUserName,Optional<User> busquedaCorreo) throws  Exception{
+		validate(dto);
+		if(busquedaUserName.isPresent()) {
+			if(busquedaUserName.get().getUserName().equals(dto.getUserName()))
+				throw new Exception("Error - Problems with duplicate ["+busquedaUserName.get().getUserName()+"]");
+		}
+		if(busquedaCorreo.isPresent()) {
+			if(busquedaCorreo.get().getEmail().equals(dto.getEmail()))
+				throw new Exception("Error - Problems with duplicate ["+busquedaCorreo.get().getEmail()+"]");
+		}
+		if(dto.getId()!=null)
+			throw new Exception("Error - Id -Its required null");		
+	}
+	private void validate(UserDTO dto) throws  Exception{
 		if(dto.getUserName()==null)
 			throw new Exception("Error - Its necesary UserName");
 		if(dto.getUserName().isEmpty() || dto.getUserName().equals(""))
@@ -207,25 +217,6 @@ public class UserServiceImpl implements UserService {
 			throw new Exception("Error - Its necesary Name");
 		if(dto.getName().isEmpty() || dto.getName().equals(""))
 			throw new Exception("Error - Its necesary Name");
-		
-		
-		if(busquedaUserName.isPresent()) {
-			if(busquedaUserName.get().getUserName().equals(dto.getUserName()))
-				throw new Exception("Error - Problems with duplicate ["+busquedaUserName.get().getUserName()+"]");
-		}
-		if(busquedaCorreo.isPresent()) {
-			if(busquedaCorreo.get().getEmail().equals(dto.getEmail()))
-				throw new Exception("Error - Problems with duplicate ["+busquedaCorreo.get().getEmail()+"]");
-		}
-		if(isNew) {
-			if(dto.getId()!=null)
-				throw new Exception("Error - Id -Its required null");
-		}
-		else{
-			if(dto.getId()==null)
-				throw new Exception("Error - Id -Its required");
-			
-		}		
 	}
 
 }
