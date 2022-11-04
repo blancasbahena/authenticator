@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.truper.saen.authenticator.entities.Permiso;
+import com.truper.saen.commons.entities.Permiso;
 @Repository
 public interface PermisoRepository extends JpaRepository<Permiso, Long> {
 

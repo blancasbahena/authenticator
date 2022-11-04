@@ -8,10 +8,10 @@ import javax.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import com.truper.saen.authenticator.entities.Permiso;
-import com.truper.saen.authenticator.entities.Relationships;
-import com.truper.saen.authenticator.entities.Role;
-import com.truper.saen.authenticator.entities.User;
+import com.truper.saen.commons.entities.Permiso;
+import com.truper.saen.commons.entities.Relationships;
+import com.truper.saen.commons.entities.Role;
+import com.truper.saen.commons.entities.User;
 import com.truper.saen.authenticator.repository.PermisoRepository;
 import com.truper.saen.authenticator.repository.RoleRepository;
 import com.truper.saen.authenticator.repository.UserRepository;

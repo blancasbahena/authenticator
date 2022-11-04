@@ -9,9 +9,9 @@ import javax.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import com.truper.saen.authenticator.entities.Relationships;
-import com.truper.saen.authenticator.entities.Role;
-import com.truper.saen.authenticator.entities.User;
+import com.truper.saen.commons.entities.Relationships;
+import com.truper.saen.commons.entities.Role;
+import com.truper.saen.commons.entities.User;
 import com.truper.saen.authenticator.repository.RoleRepository;
 import com.truper.saen.authenticator.repository.UserRepository;
 import com.truper.saen.commons.dto.UserDTO;
@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
 						usuarioAmodificar.setName(dto.getName());
 						usuarioAmodificar.setEmail(dto.getEmail());
 						usuarioAmodificar.setUserAD(dto.getUserAD());
-						usuarioAmodificar.setPwdReset(dto.getPwdReset());
+						usuarioAmodificar.setPwdreset(dto.getPwdreset());
 					}
 					if(modificarRoles) {
 						usuarioAmodificar.setRoles(listaRoles);

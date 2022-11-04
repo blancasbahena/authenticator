@@ -78,6 +78,7 @@
 			<groupId>com.truper.saen</groupId>
 			<artifactId>sae-nac-common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
