@@ -1,4 +1,6 @@
 package com.truper.saen.authenticator.controller;
+
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -9,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,7 +40,7 @@ public class AuthenticateController {
 	private final AuthenticationManager authenticationManager;
 	private ActiveDirectoryConnector AD_CON = ActiveDirectoryConnector.getInstance();
 	@PostMapping
-	@ApiOperation(value = "Servicio para la auntenticacion de usuario / password y regresa token")
+	@ApiOperation(value = "Servicio para la auntenticacion con Body{ username / password } y regresa token")
 	public ResponseEntity<?> createAuthenticationTokenAD(@RequestBody
 			AuthenticationRequest authenticationRequest) throws Exception {
 		ResponseVO responseVO = ResponseVO.builder()
@@ -68,20 +71,19 @@ public class AuthenticateController {
 		return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body(responseVO);		
 	}
 	@PutMapping
-	@ApiOperation(value = "Servicio para la auntenticacion de usuario / password y regresa token")
-	public ResponseEntity<?> createAuthenticationToken(@RequestBody
-			AuthenticationRequest authenticationRequest) throws Exception {
+	@ApiOperation(value = "Servicio para la auntenticacion con headers de user / password y regresa token")
+	public ResponseEntity<?> createAuthenticationToken(@RequestHeader("user") String user,@RequestHeader("password") String password) throws Exception {
 		ResponseVO responseVO = ResponseVO.builder()
 				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
 				.mensaje("Problems with user in Data Base")
 				.folio(ResponseVO.getFolioActual())
 				.build();
-		try{
-			log.info("Inicia proceso para authenticaion {} , {} ",authenticationRequest.getUsername(),Fechas.getHoraLogeo());
+		try{ 
+			log.info("Inicia proceso para authenticaion {} , {} ",new String(Base64.decodeBase64(user.getBytes())),Fechas.getHoraLogeo());
 			final UserDetails userDetails = userDetailsServices
-					.loadUserByUsername(authenticationRequest.getUsername());
-			authenticate(authenticationRequest.getUsername(),authenticationRequest.getPassword());
-			UserDTO dto=userService.findByUserName(authenticationRequest.getUsername());
+					.loadUserByUsername(new String(Base64.decodeBase64(user.getBytes())));
+			authenticate(new String(Base64.decodeBase64(user.getBytes())),new String(Base64.decodeBase64(password.getBytes())));
+			UserDTO dto=userService.findByUserName(new String(Base64.decodeBase64(user.getBytes())));
 			if(dto!=null) {
 				log.info("Termina proceso para authenticaion   {} ", Fechas.getHoraLogeo());
 				return ResponseEntity.ok(AuthenticationResponse.builder()

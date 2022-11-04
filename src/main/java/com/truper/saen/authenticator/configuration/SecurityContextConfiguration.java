@@ -15,8 +15,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Configuration
 @EnableWebSecurity
+@Slf4j
 public class SecurityContextConfiguration extends WebSecurityConfigurerAdapter
 {
 	@Autowired
@@ -51,6 +54,8 @@ public class SecurityContextConfiguration extends WebSecurityConfigurerAdapter
 	}
 	@Bean
 	public PasswordEncoder passwordEncoder() {
+		PasswordEncoder  pd=new BCryptPasswordEncoder();
+		log.info("####################################################  {} ",pd.encode("Apl1c4c10nD3S1st3m45S43N4c10n4l35$"));
 		return new BCryptPasswordEncoder();
 	}
 
@@ -62,7 +67,9 @@ public class SecurityContextConfiguration extends WebSecurityConfigurerAdapter
 	@Override
     public void configure(WebSecurity web) throws Exception 
     {
-		web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/authenticate")
+		web.ignoring()
+		.antMatchers(HttpMethod.POST, "/api/v1/authenticate")
+		.antMatchers(HttpMethod.PUT, "/api/v1/authenticate")
 		.antMatchers("/api/v1/v2/api-docs/**")
 		.antMatchers("/api/v1/swagger.json")
 		.antMatchers("/api/v1/swagger-ui.html")
