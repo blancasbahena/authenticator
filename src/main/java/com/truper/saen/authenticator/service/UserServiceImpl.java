@@ -30,6 +30,7 @@ public class UserServiceImpl implements UserService {
 	private User userCreated=null;
 	@Override
 	public Boolean save(UserDTO dto) throws Exception {
+		log.info("Creando usuario  {}",dto.getUserName());
 		List<Role> listaRoles= null;
 		Optional<User> busquedaUserName =   userRepository.findByUserNameAndActive(dto.getUserName(),true);
 		Optional<User> busquedaCorreo =   userRepository.findByEmailAndActive(dto.getEmail(),true);
@@ -54,9 +55,9 @@ public class UserServiceImpl implements UserService {
 					if(!dto.getRoles().isEmpty()) {
 						List<Long> ids =dto.getRoles().stream().map(p->p.getId()).collect(Collectors.toList());
 						listaRoles = roleRepository.findByIdIn(ids);
+						nuevo.setRoles(listaRoles);
 					}
 				}
-				nuevo.setRoles(listaRoles);
 				userRepository.save(nuevo);
 				return true;
 			}catch(Exception e) {
@@ -71,16 +72,15 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Boolean update(UserDTO dto,boolean modificarRoles,boolean soloPassword) throws Exception {
+		log.info("Modificando usuario  {}",dto.getUserName());
 		List<Role> listaRoles= null;
 		User  usuarioAmodificar =  null;
 		Optional<User> optPer =   userRepository.findById(dto.getId());
 		Optional<User> busquedaUserName =   userRepository.findByUserNameAndActive(dto.getUserName(),true);
-		if(dto.getUserCreated()!=null) {
-			if(dto.getUserModified()!=null) {
-				Optional<User> userOpt=userRepository.findById(dto.getUserModified().getId());
-				if(userOpt.isPresent()) {
-					userModified = userOpt.get();
-				}
+		if(dto.getUserModified()!=null) {
+			Optional<User> userOpt=userRepository.findById(dto.getUserModified().getId());
+			if(userOpt.isPresent()) {
+				userModified = userOpt.get();
 			}
 		}
 		if(optPer.isPresent()) {
@@ -100,7 +100,7 @@ public class UserServiceImpl implements UserService {
 					}
 				}
 				try {
-					validateModificado(dto,userRepository.findAll());				
+					validateModificado(dto,userRepository.findAll());
 					usuarioAmodificar.setModified(new Date());
 					usuarioAmodificar.setUserModified(userModified);
 					if(!soloPassword) {
@@ -115,7 +115,7 @@ public class UserServiceImpl implements UserService {
 					if(soloPassword) {
 						usuarioAmodificar.setPassword(dto.getPassword());
 					}
-					userRepository.save(optPer.get());
+					userRepository.save(usuarioAmodificar);
 					return true;
 				}catch(Exception e) {
 					log.error("Problemas en Users : {}",e.getMessage());
@@ -129,6 +129,7 @@ public class UserServiceImpl implements UserService {
 	} 
 	@Override
 	public Boolean delete(UserDTO dto) throws  Exception{
+		log.info("Borrando usuario  {}",dto.getId());
 		Optional<User> optPer =   userRepository.findById(dto.getId());
 		if(optPer.isPresent()) {
 			optPer.get().setActive(false);
@@ -140,8 +141,10 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDTO findById(Long idUser) {
-		Optional<User> optPer =   userRepository.findById(idUser);
+		log.info("Consultando usuario  {}",idUser);
+		Optional<User> optPer =   userRepository.findByIdAndActive(idUser,true);
 		if(optPer.isPresent()) {
+			log.info("Consultando usuario-ID  {}",optPer.get().getId());
 			return Relationships.directSelfReference(modelMapper.map(optPer.get(), UserDTO.class));
 		}
 		return null;
@@ -149,8 +152,10 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDTO findByUserName(String userName) {
+		log.info("Consultando usuario  {}",userName);
 		Optional<User> optPer =   userRepository.findByUserNameAndActive(userName,true);
 		if(optPer.isPresent()) {
+			log.info("Consultando usuario-USERNAME  {}",userName);
 			return  Relationships.directSelfReference(modelMapper.map(optPer.get(), UserDTO.class));
 		}
 		return null;

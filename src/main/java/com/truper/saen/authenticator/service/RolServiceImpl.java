@@ -18,6 +18,7 @@ import com.truper.saen.authenticator.entities.User;
 import com.truper.saen.authenticator.repository.PermisoRepository;
 import com.truper.saen.authenticator.repository.RoleRepository;
 import com.truper.saen.authenticator.repository.UserRepository;
+import com.truper.saen.commons.dto.PermisoDTO;
 import com.truper.saen.commons.dto.RoleDTO;
 import com.truper.saen.commons.dto.UserDTO;
 
@@ -34,6 +35,7 @@ public class RolServiceImpl implements RolService {
 	private final UserRepository userRepository;
 	@Override
 	public Boolean save(RoleDTO dto) throws  Exception{
+		log.info("Crea roles {},  {}" , dto.getDescripcion());
 		List<Permiso> listaPermisos= null;
 		Optional<Role> busqueda =   roleRepository.findByDescripcion(dto.getDescripcion());
 		Optional<User> userOpt=userRepository.findById(dto.getUserCreated().getId());
@@ -47,6 +49,7 @@ public class RolServiceImpl implements RolService {
 			try {
 				validate(dto,busqueda,true);
 				Role nuevo=modelMapper.map(dto, Role.class);
+				nuevo.setActive(true);
 				nuevo.setCreated(new Date());
 				nuevo.setModified(new Date());
 				nuevo.setUserCreated(userOpt.get());
@@ -55,76 +58,73 @@ public class RolServiceImpl implements RolService {
 				roleRepository.save(nuevo);
 				return true;
 			}catch(Exception e) {
-				log.error("Problemas en Permiso : {}",e.getMessage());
+				throw new Exception(e.getMessage());
+				
 			}
 		}else{
-			log.error("Problems with the creating user");
-		}
-		return false;
+			log.error("Problems with user creater in DTO");
+			throw new Exception("Problems with user creater in DTO");
+		} 
 	}
-
+	public RoleDTO findByDescripcion(String descripcion) {
+		log.info("Busqueda de rol por {}" , descripcion);
+		Optional<Role> optRol =   roleRepository.findByDescripcion(descripcion);
+		if(optRol.isPresent()) {
+			return modelMapper.map(optRol.get(), RoleDTO.class);
+		}
+		return null;
+	}
 	@Override
-	public Boolean update(RoleDTO dto) throws  Exception {
+	public Boolean update(RoleDTO dto,boolean modifyPermission) throws  Exception {
+		log.info("Modifica roles {},  {}" , dto.getDescripcion(), modifyPermission);
 		List<Permiso> listaPermisos= null;
 		Optional<Role> optPer =   roleRepository.findById(dto.getId());
 		Optional<Role> busqueda =   roleRepository.findByDescripcion(dto.getDescripcion());
 		User userModified=null;
+		if(dto.getActive()==null) {
+			dto.setActive(true);
+		}
 		Optional<User> userOpt=userRepository.findById(dto.getUserModified().getId());
 		if(userOpt.isPresent()) {
 			userModified = userOpt.get();
 		}
-		if(dto.getPermisos()!=null) {
-			if(!dto.getPermisos().isEmpty()) {
-				listaPermisos = 
-						permisoRepository.findByIdIn(dto.getPermisos().stream().map(p->p.getId()).collect(Collectors.toList()));
+		if(modifyPermission) {
+			if(dto.getPermisos()!=null) {
+				if(!dto.getPermisos().isEmpty()) {
+					listaPermisos = 
+							permisoRepository.findByIdIn(dto.getPermisos().stream().map(p->p.getId()).collect(Collectors.toList()));
+				}
 			}
 		}
 		if(optPer.isPresent() && userModified!=null) {
 			try {
 				validate(dto,busqueda,false);
+				if(dto.getActive()==null) {
+					dto.setActive(true);
+				}
 				optPer.get().setModified(new Date());
 				optPer.get().setUserModified(userModified);
 				optPer.get().setDescripcion(dto.getDescripcion());
 				optPer.get().setActive(dto.getActive());
-				optPer.get().setPermisos(listaPermisos);
+				if(modifyPermission) {
+					optPer.get().setPermisos(listaPermisos);
+				}
 				roleRepository.save(optPer.get());
+				return true;
 			}catch(Exception e) {
 				log.error("Problems in Role : {}",e.getMessage());
+				throw new Exception(e.getMessage());
 			}
 		}
 		if(userModified==null) {
-			log.error("Problems with the modifying user");
+			log.error("Problems with user modifier in DTO");
+			throw new Exception("Problems with user modifier in DTO");
 		}
 		return false;
-	}
-	@Override
-	public Boolean updateDetail(RoleDTO dto) throws  Exception{
-		Optional<Role> optPer =   roleRepository.findById(dto.getId());
-		Optional<Role> busqueda =   roleRepository.findByDescripcion(dto.getDescripcion());
-		User userModified=null;
-		Optional<User> userOpt=userRepository.findById(dto.getUserModified().getId());
-		if(userOpt.isPresent()) {
-			userModified = userOpt.get();
-		}
-		if(optPer.isPresent() && userModified!=null) {
-			try {
-				validate(dto,busqueda,false);
-				optPer.get().setModified(new Date());
-				optPer.get().setUserModified(userModified);
-				optPer.get().setDescripcion(dto.getDescripcion());
-				optPer.get().setActive(dto.getActive());
-				roleRepository.save(optPer.get());
-			}catch(Exception e) {
-				log.error("Problems in Role : {}",e.getMessage());
-			}
-		}
-		if(userModified==null) {
-			log.error("Problems with the modifying user");
-		}
-		return false;
-	}
+	} 
 	@Override
 	public Boolean delete(RoleDTO dto) throws  Exception{
+		log.info("Borrar de rol por {}" , dto.getId());
 		Optional<Role> optPer =   roleRepository.findById(dto.getId());
 		if(optPer.isPresent()) {
 			optPer.get().setActive(false);
@@ -136,6 +136,7 @@ public class RolServiceImpl implements RolService {
 
 	@Override
 	public List<RoleDTO> findByUser(Long idUser) {
+		log.info("Busca roles de este usuario : {}  ",idUser);
 		Optional<User> optRol =   userRepository.findById(idUser);
 		if(optRol.isPresent()) {
 			if(optRol.get().getRoles()!=null) {
@@ -147,7 +148,23 @@ public class RolServiceImpl implements RolService {
 	}
 	
 	@Override
+	public List<RoleDTO> findByUserUnassigned (Long idUser) {
+		log.info("Busca rol asignados a este usuario : {}  ",idUser);
+		Optional<User> optRol =   userRepository.findById(idUser);
+		List<Role> lista=roleRepository.findAll();
+		if(optRol.isPresent()) {
+			if(optRol.get().getRoles()!=null) {
+				lista.removeAll(optRol.get().getRoles());
+			}
+			return Relationships.directSelfReferenceRoles(
+				lista.stream().map(rol->modelMapper.map(rol, RoleDTO.class)).collect(Collectors.toList()));
+		}
+		return Arrays.asList();
+	}
+	
+	@Override
 	public Boolean removeRoleToUser(Long idUser,Long idRol,UserDTO userDTO) throws  Exception{
+		log.info("Remueve rol de usuario: {} -> {}  ",idRol,idUser);
 		Optional<Role> optRol =   roleRepository.findById(idRol);
 		Optional<User> userOpt=userRepository.findById(idUser);
 		Optional<User> optModf =   userRepository.findById(userDTO.getId());
@@ -162,6 +179,7 @@ public class RolServiceImpl implements RolService {
 	
 	@Override
 	public Boolean appendRoleToUser(Long idUser,Long idRol,UserDTO userDTO) throws  Exception{
+		log.info("Asigna rol de usuario: {} -> {}  ",idRol,idUser);
 		Optional<Role> optRol =   roleRepository.findById(idRol);
 		Optional<User> userOpt=userRepository.findById(idUser);
 		Optional<User> optModf =   userRepository.findById(userDTO.getId());
@@ -176,6 +194,7 @@ public class RolServiceImpl implements RolService {
 
 	@Override
 	public RoleDTO findById(Long idRol) {
+		log.info("Busca rol : {}  ",idRol);
 		Optional<Role> optPer =   roleRepository.findById(idRol);
 		if(optPer.isPresent()) {
 			return Relationships.directSelfReferenceRole(modelMapper.map(optPer.get(), RoleDTO.class));
@@ -185,6 +204,7 @@ public class RolServiceImpl implements RolService {
 
 	@Override
 	public List<RoleDTO> findAll() {
+		log.info("Busca todos los roles ");
 		return Relationships.directSelfReferenceRoles(
 				roleRepository.findAll().stream().map(rol->modelMapper.map(rol, RoleDTO.class)).collect(Collectors.toList()));
 	}

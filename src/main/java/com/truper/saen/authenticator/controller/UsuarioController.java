@@ -35,7 +35,7 @@ public class UsuarioController {
 	private final JWUtil jwutil;
 	private final ValidaTokenService tokenService;
 	@GetMapping 
-	@ApiOperation(value = "Servicio que muestra informacion de un usuario, paramatros {username o id}", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Servicio que muestra informacion de un usuario, parametros {username o id}", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> getUsuarios(@RequestParam(required=false) String userName,@RequestParam(required=false) Long id){
 		log.info("Inicia controller para obtencion de usuarios {} , {} ,{}",userName!=null?userName:"-",id!=null?id:"-",Fechas.getHoraLogeo());
 		String mensaje="Problems in UsuarioController @ GetMapping";
@@ -48,13 +48,26 @@ public class UsuarioController {
 				if(userDTO!=null) {
 					formData.put("usuario", userDTO);
 					exito=true;
+				}else {
+					return ResponseEntity.ok(ResponseVO.builder()
+							.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+							.mensaje(Mensajes.MSG_NODATA.getMensaje())
+							.folio(ResponseVO.getFolioActual())
+							.build());
 				}
+				
 			}
 			else if(id!=null) {
 				UserDTO userDTO= service.findById(id);
 				if(userDTO!=null) {
 					formData.put("usuario", userDTO);
 					exito=true;
+				}else {
+					return ResponseEntity.ok(ResponseVO.builder()
+							.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+							.mensaje(Mensajes.MSG_NODATA.getMensaje())
+							.folio(ResponseVO.getFolioActual())
+							.build());
 				}
 			}
 			else {

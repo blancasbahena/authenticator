@@ -31,6 +31,7 @@ public class PermisosServiceImpl implements PermisosService {
 	private final UserRepository userRepository;
 	@Override
 	public Boolean save(PermisoDTO dto) {
+		log.info("Se crea permission : {} ",dto.getNombrePermiso());
 		Permiso parent=null;
 		if(dto.getParent()!=null) {
 			if(dto.getParent().getId()!=null) {
@@ -64,6 +65,7 @@ public class PermisosServiceImpl implements PermisosService {
 
 	@Override
 	public Boolean update(PermisoDTO dto) {
+		log.info("Se modifica permission : {} ",dto.getNombrePermiso());
 		Permiso parent=null;
 		Optional<Permiso> optPer =   permisoRepository.findById(dto.getId());
 		Optional<Permiso> busqueda =   permisoRepository.findByNombrePermiso(dto.getNombrePermiso());
@@ -93,8 +95,9 @@ public class PermisosServiceImpl implements PermisosService {
 				optPer.get().setUrl(dto.getUrl());
 				optPer.get().setIcon(dto.getIcon());
 				optPer.get().setIdentifierAccion(dto.getIdentifierAccion());
-				optPer.get().setTooltip(dto.getTooltip());				
+				optPer.get().setTooltip(dto.getTooltip());
 				permisoRepository.save(optPer.get());
+				return true;
 			}catch(Exception e) {
 				log.error("Problems in Permission : {}",e.getMessage());
 			}
@@ -107,6 +110,7 @@ public class PermisosServiceImpl implements PermisosService {
 
 	@Override
 	public Boolean delete(PermisoDTO dto) {
+		log.info("Se borra permission : {} ",dto.getNombrePermiso());
 		Optional<Permiso> optPer =   permisoRepository.findById(dto.getId());
 		if(optPer.isPresent()) {
 			optPer.get().setActive(false);
@@ -117,6 +121,7 @@ public class PermisosServiceImpl implements PermisosService {
 	}
 	@Override
 	public Boolean appendPermissionToRol(Long idRol, Long idPermission,UserDTO userDTO) {
+		log.info("Asignar Permission a Usuario {} -> {} ",idRol,idPermission);
 		Optional<Role> optRol =   roleRepository.findById(idRol);
 		Optional<Permiso> optPer =   permisoRepository.findById(idPermission);
 		Optional<User> optModf =   userRepository.findById(userDTO.getId());
@@ -130,6 +135,7 @@ public class PermisosServiceImpl implements PermisosService {
 	}
 	@Override
 	public Boolean removePermissionToRol(Long idRol, Long idPermission,UserDTO userDTO) {
+		log.info("Remover Permission a Usuario {} -> {} ",idRol,idPermission);
 		Optional<Role> optRol =   roleRepository.findById(idRol);
 		Optional<Permiso> optPer =   permisoRepository.findById(idPermission);
 		Optional<User> optModf =   userRepository.findById(userDTO.getId());
@@ -143,6 +149,7 @@ public class PermisosServiceImpl implements PermisosService {
 	}
 	@Override
 	public List<PermisoDTO> findByRole(Long idRol) {
+		log.info("Buscar Permiso : {} ",idRol);
 		Optional<Role> optRol =   roleRepository.findById(idRol);
 		if(optRol.isPresent()) {
 			return Relationships.directSelfReferencePermissions(
@@ -150,9 +157,22 @@ public class PermisosServiceImpl implements PermisosService {
 		}
 		return Arrays.asList();
 	}
+	@Override
+	public List<PermisoDTO> findByRoleUnassigned(Long idRol) {
+		log.info("Buscar Permiso : {} ",idRol);
+		List<Permiso> todosPermis=permisoRepository.findAll();
+		Optional<Role> optRol =   roleRepository.findById(idRol);
+		if(optRol.isPresent()) {
+			todosPermis.removeAll(optRol.get().getPermisos());
+			return Relationships.directSelfReferencePermissions(
+			todosPermis.stream().map(permiso->modelMapper.map(permiso, PermisoDTO.class)).collect(Collectors.toList()));
+		}
+		return Arrays.asList();
+	}
 
 	@Override
 	public PermisoDTO findById(Long idPer) {
+		log.info("Buscar Permiso : {} ",idPer);
 		Optional<Permiso> optPer =   permisoRepository.findById(idPer);
 		if(optPer.isPresent()) {
 			return Relationships.directSelfReferencePermission(modelMapper.map(optPer.get(), PermisoDTO.class));
@@ -161,6 +181,7 @@ public class PermisosServiceImpl implements PermisosService {
 	}
 	@Override
 	public PermisoDTO findByNombre(String nombre) {
+		log.info("Buscar Permiso : {} ",nombre);
 		Optional<Permiso> optPer =   permisoRepository.findByNombrePermiso (nombre);
 		if(optPer.isPresent()) {
 			return Relationships.directSelfReferencePermission(modelMapper.map(optPer.get(), PermisoDTO.class));
@@ -170,6 +191,7 @@ public class PermisosServiceImpl implements PermisosService {
 
 	@Override
 	public List<PermisoDTO> findAll() {
+		log.info("buscar PermissionALL ");
 		return Relationships.directSelfReferencePermissions(
 				permisoRepository.findAll().stream().map(permiso->modelMapper.map(permiso, PermisoDTO.class)).collect(Collectors.toList()));
 	}

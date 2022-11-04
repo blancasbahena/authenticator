@@ -10,6 +10,7 @@ public interface PermisosService {
 	Boolean update(PermisoDTO dto);
 	Boolean delete(PermisoDTO dto);
 	List<PermisoDTO> findByRole(Long idRol);
+	List<PermisoDTO> findByRoleUnassigned(Long idRol);
 	PermisoDTO findById(Long idRol);
 	List<PermisoDTO> findAll();
 	PermisoDTO findByNombre(String nombrePermiso);

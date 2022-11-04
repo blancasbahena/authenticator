@@ -143,50 +143,20 @@ public class RolesController {
 	}
 	@PutMapping 
 	@ApiOperation(value = "Servicio para modificar rol y permisos, parametros { DTO }", authorizations = @Authorization(value = "Bearer"))
-	public ResponseEntity<ResponseVO> modify(@RequestBody RoleDTO dto,HttpServletRequest request){
-		String mensaje="Problems in RolesController @ PutMapping";
+	public ResponseEntity<ResponseVO> modifyallDTO(@RequestBody RoleDTO dto,HttpServletRequest request){
 		log.info("Controller para modificar roles {}  , {}",dto.toString(),Fechas.getHoraLogeo());
-		Map<String, Object> formData = new HashMap<>();
-		UserDTO usuarioToken =null;
-		try
-		{
-			usuarioToken = tokenService.regresaUsuario(serviceUser, jwutil, request);
-		} catch (Exception e) {
-			log.error("Error: {}",e.getMessage());
-			mensaje =  e.getMessage();
-			return ResponseEntity.ok(ResponseVO.builder()
-					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
-					.mensaje(mensaje)
-					.folio(ResponseVO.getFolioActual())
-					.build());
-		}
-		try
-		{
-			dto.setUserModified(usuarioToken);
-			formData.put("result", service.update(dto));
-			log.info("Termina controller para modificar roles con exito {}",Fechas.getHoraLogeo()) ;
-			return ResponseEntity.ok(ResponseVO.builder()
-					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
-					.mensaje(Mensajes.MSG_EXITO.getMensaje())
-					.data(formData)
-					.folio(ResponseVO.getFolioActual())
-					.build());
-		} catch (Exception e) {
-			log.error("Error: {}",e.getMessage());
-			mensaje =  e.getMessage();
-		}
-		log.info("Termina controller para modificar roles con erorr {}",Fechas.getHoraLogeo());
-		return ResponseEntity.ok(ResponseVO.builder()
-				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
-				.mensaje(mensaje)
-				.folio(ResponseVO.getFolioActual())
-				.build());
-	} 
+		boolean modifyPermission=true;
+		return modify(dto,request,modifyPermission);
+	}
 	@PutMapping("/detail")
 	@ApiOperation(value = "Servicio para modificar solo detalle de role, parametros { DTO } ", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> modifyDetail(@RequestBody RoleDTO dto,HttpServletRequest request){
+		log.info("Controller para modificar solo el detalle del rol {}  , {}",dto.toString(),Fechas.getHoraLogeo());
+		boolean modifyPermission=false;
+		return modify(dto,request,modifyPermission);
+	}
+	public ResponseEntity<ResponseVO> modify(@RequestBody RoleDTO dto,HttpServletRequest request,boolean modifyPermission){
 		String mensaje="Problems in RolesController @ PutMapping";
-		log.info("Controller para modificar roles {}  , {}",dto.toString(),Fechas.getHoraLogeo());
 		Map<String, Object> formData = new HashMap<>();
 		UserDTO usuarioToken =null;
 		try
@@ -204,7 +174,7 @@ public class RolesController {
 		try
 		{
 			dto.setUserModified(usuarioToken);
-			formData.put("result", service.updateDetail(dto));
+			formData.put("result", service.update(dto,modifyPermission));
 			log.info("Termina controller para modificar roles con exito {}",Fechas.getHoraLogeo()) ;
 			return ResponseEntity.ok(ResponseVO.builder()
 					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
@@ -349,5 +319,65 @@ public class RolesController {
 				.folio(ResponseVO.getFolioActual())
 				.mensaje(mensaje)
 				.build());
+	}
+	@GetMapping("/assigned")
+	@ApiOperation(value = "Servicio que regresa todos roles asignados a user{ idUser } ", authorizations = @Authorization(value = "Bearer"))
+	public ResponseEntity<ResponseVO> getuAssigned (@RequestParam(required=false) Long idUser,@RequestHeader("Authorization") String authorization){
+		String mensaje=Mensajes.MSG_NODATA.getMensaje();
+		log.info("Inicia controller para obtencion de roles {} , {} , {} ", idUser!=null?idUser:"-",Fechas.getHoraLogeo());
+		try
+		{
+			Map<String, Object> formData = new HashMap<>();
+			if(idUser!=null) {
+				List<RoleDTO> roles= service.findByUser(idUser);
+				if(roles!=null && !roles.isEmpty()) {
+					formData.put("roles", roles);
+					return ResponseEntity.ok(ResponseVO.builder()
+							.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
+							.mensaje(Mensajes.MSG_EXITO.getMensaje())
+							.folio(ResponseVO.getFolioActual())
+							.data(formData)
+							.build());
+				}
+			}
+		} catch (Exception e) {
+			log.error("Error: {}",e.getMessage());
+			mensaje =  e.getMessage();
+		}
+		return ResponseEntity.ok(ResponseVO.builder()
+			.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+			.folio(ResponseVO.getFolioActual())
+			.mensaje(mensaje)
+			.build());
+	}
+	@GetMapping("/unassigned")
+	@ApiOperation(value = "Servicio que regresa todos roles no asignados a user{ idUser } ", authorizations = @Authorization(value = "Bearer"))
+	public ResponseEntity<ResponseVO> getUnassigned (@RequestParam(required=false) Long idUser,@RequestHeader("Authorization") String authorization){
+		String mensaje=Mensajes.MSG_NODATA.getMensaje();
+		log.info("Inicia controller para obtencion de roles {} , {} , {} ", idUser!=null?idUser:"-",Fechas.getHoraLogeo());
+		try
+		{
+			Map<String, Object> formData = new HashMap<>();
+			if(idUser!=null) {
+				List<RoleDTO> roles= service.findByUserUnassigned(idUser);
+				if(roles!=null && !roles.isEmpty()) {
+					formData.put("roles", roles);
+					return ResponseEntity.ok(ResponseVO.builder()
+							.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
+							.mensaje(Mensajes.MSG_EXITO.getMensaje())
+							.folio(ResponseVO.getFolioActual())
+							.data(formData)
+							.build());
+				}
+			}
+		} catch (Exception e) {
+			log.error("Error: {}",e.getMessage());
+			mensaje =  e.getMessage();
+		}
+		return ResponseEntity.ok(ResponseVO.builder()
+			.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+			.folio(ResponseVO.getFolioActual())
+			.mensaje(mensaje)
+			.build());
 	}
 }
