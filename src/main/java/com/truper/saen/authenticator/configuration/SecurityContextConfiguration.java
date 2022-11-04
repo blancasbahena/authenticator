@@ -54,8 +54,6 @@ public class SecurityContextConfiguration extends WebSecurityConfigurerAdapter
 	}
 	@Bean
 	public PasswordEncoder passwordEncoder() {
-		PasswordEncoder  pd=new BCryptPasswordEncoder();
-		log.info("####################################################  {} ",pd.encode("Apl1c4c10nD3S1st3m45S43N4c10n4l35$"));
 		return new BCryptPasswordEncoder();
 	}
 
