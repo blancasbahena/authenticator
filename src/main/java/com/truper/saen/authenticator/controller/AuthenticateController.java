@@ -1,5 +1,8 @@
 package com.truper.saen.authenticator.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +11,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/authenticate")
+@CrossOrigin(value = {"*"}, exposedHeaders = {"Content-Disposition"})
 @Slf4j
 public class AuthenticateController {
 	private final UserDetailsServices userDetailsServices;
@@ -50,25 +55,38 @@ public class AuthenticateController {
 				.build();
 		try{
 			log.info("Inicia proceso para authenticaion {} , {} ",authenticationRequest.getUsername(),Fechas.getHoraLogeo());
-			final UserDetails userDetails = userDetailsServices
-					.loadUserByUsername(authenticationRequest.getUsername());
-			AD_CON.validaLogin(authenticationRequest.getUsername(),authenticationRequest.getPassword());
-			authenticate(authenticationRequest.getUsername(),authenticationRequest.getPassword());
 			UserDTO dto=userService.findByUserName(authenticationRequest.getUsername());
 			if(dto!=null) {
+				if(dto.getUserAD()) { 
+					AD_CON.obtenBeanUsuario(authenticationRequest.getUsername(),authenticationRequest.getPassword());
+				} // APP o  Proveedor
+				final UserDetails userDetails = userDetailsServices
+						.loadUserByUsername(authenticationRequest.getUsername());
+				authenticate(authenticationRequest.getUsername(),authenticationRequest.getPassword());
+				Map<String, Object> formData = new HashMap<>();
+				formData.put("jwt",  jwutil.generaToken(userDetails,dto));
 				log.info("Termina proceso para authenticaion   {} ", Fechas.getHoraLogeo());
-				return ResponseEntity.ok(AuthenticationResponse.builder()
+				ResponseVO responseOK = ResponseVO.builder()
+						.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
+						.mensaje(Mensajes.MSG_EXITO.getMensaje())
+						.data(formData)
 						.folio(ResponseVO.getFolioActual())
-						.jwt(jwutil.generaToken(userDetails,dto))
-						.build());
+						.build();
+				return ResponseEntity.status(HttpStatus.SC_OK).body(responseOK);
+			}else {
+				responseVO = ResponseVO.builder()
+						.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+						.mensaje("Problems with Authentication")
+						.folio(ResponseVO.getFolioActual())
+						.build();
 			}
 		}catch(Exception e) {
 			log.error("Problems with Authentication: {} ",e.getMessage());
-			responseVO.setMensaje(e.getMessage());
+			responseVO.setMensaje("Problems with Authentication");
 			responseVO.setFolio(ResponseVO.getFolioActual());
 		}
 		log.info("Termina proceso para authenticaion con error  {} ", Fechas.getHoraLogeo());
-		return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body(responseVO);		
+		return ResponseEntity.status(HttpStatus.SC_OK).body(responseVO);		
 	}
 	@PutMapping
 	@ApiOperation(value = "Servicio para la auntenticacion con headers de user / password y regresa token")
