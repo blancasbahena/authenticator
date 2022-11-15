@@ -3,7 +3,6 @@ package com.truper.saen.authenticator.controller;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,9 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,7 +21,6 @@ import com.truper.saen.authenticator.configuration.JWUtil;
 import com.truper.saen.authenticator.configuration.UserDetailsServices;
 import com.truper.saen.authenticator.service.UserService;
 import com.truper.saen.commons.dto.AuthenticationRequest;
-import com.truper.saen.commons.dto.AuthenticationResponse;
 import com.truper.saen.commons.dto.ResponseVO;
 import com.truper.saen.commons.dto.UserDTO;
 import com.truper.saen.commons.enums.Mensajes;
@@ -87,35 +83,6 @@ public class AuthenticateController {
 		}
 		log.info("Termina proceso para authenticaion con error  {} ", Fechas.getHoraLogeo());
 		return ResponseEntity.status(HttpStatus.SC_OK).body(responseVO);		
-	}
-	@PutMapping
-	@ApiOperation(value = "Servicio para la auntenticacion con headers de user / password y regresa token")
-	public ResponseEntity<?> createAuthenticationToken(@RequestHeader("user") String user,@RequestHeader("password") String password) throws Exception {
-		ResponseVO responseVO = ResponseVO.builder()
-				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
-				.mensaje("Problems with user in Data Base")
-				.folio(ResponseVO.getFolioActual())
-				.build();
-		try{ 
-			log.info("Inicia proceso para authenticaion {} , {} ",new String(Base64.decodeBase64(user.getBytes())),Fechas.getHoraLogeo());
-			final UserDetails userDetails = userDetailsServices
-					.loadUserByUsername(new String(Base64.decodeBase64(user.getBytes())));
-			authenticate(new String(Base64.decodeBase64(user.getBytes())),new String(Base64.decodeBase64(password.getBytes())));
-			UserDTO dto=userService.findByUserName(new String(Base64.decodeBase64(user.getBytes())));
-			if(dto!=null) {
-				log.info("Termina proceso para authenticaion   {} ", Fechas.getHoraLogeo());
-				return ResponseEntity.ok(AuthenticationResponse.builder()
-						.folio(ResponseVO.getFolioActual())
-						.jwt(jwutil.generaToken(userDetails,dto))
-						.build());
-			}
-		}catch(Exception e) {
-			log.error("Problems with Authentication: {} ",e.getMessage());
-			responseVO.setMensaje(e.getMessage());
-			responseVO.setFolio(ResponseVO.getFolioActual());
-		}
-		log.info("Termina proceso para authenticaion con error  {} ", Fechas.getHoraLogeo());
-		return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body(responseVO);		
 	} 
 
 	private void authenticate(String username, String password) throws Exception {
