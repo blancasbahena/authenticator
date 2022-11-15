@@ -42,7 +42,10 @@ public class JWUtil {
 	}
 
 	private static Claims extraxtAllClaims(String token) {
-		return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+		if(token!=null) {
+			return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+		}
+		return null;
 	}	
 
 	private static Boolean istokenExpired(String token) {

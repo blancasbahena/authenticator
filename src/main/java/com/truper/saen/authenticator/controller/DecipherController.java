@@ -6,6 +6,7 @@ import javax.servlet.ServletRequest;
 
 import org.apache.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping
 @Slf4j
+@CrossOrigin(value = {"*"}, exposedHeaders = {"Content-Disposition"})
 public class DecipherController {
 	private final UserService userService;
 	private final JWUtil jwutil;

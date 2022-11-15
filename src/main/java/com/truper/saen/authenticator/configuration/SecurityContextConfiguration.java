@@ -31,6 +31,7 @@ public class SecurityContextConfiguration extends WebSecurityConfigurerAdapter
 		 	.csrf().disable()
 			.authorizeRequests()
 				.antMatchers("/api/v1/swagger-resources/**").permitAll()
+				.antMatchers("api/v1/authenticate/**").permitAll()				
 				.antMatchers("/api/v1/swagger-ui.html").permitAll()
 				.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 				.anyRequest().authenticated()
@@ -67,7 +68,6 @@ public class SecurityContextConfiguration extends WebSecurityConfigurerAdapter
     {
 		web.ignoring()
 		.antMatchers(HttpMethod.POST, "/api/v1/authenticate")
-		.antMatchers(HttpMethod.PUT, "/api/v1/authenticate")
 		.antMatchers("/api/v1/v2/api-docs/**")
 		.antMatchers("/api/v1/swagger.json")
 		.antMatchers("/api/v1/swagger-ui.html")
