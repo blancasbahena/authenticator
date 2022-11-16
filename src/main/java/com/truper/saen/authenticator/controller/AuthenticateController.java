@@ -2,7 +2,7 @@ package com.truper.saen.authenticator.controller;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.Base64;
 import org.apache.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -50,6 +50,7 @@ public class AuthenticateController {
 				.folio(ResponseVO.getFolioActual())
 				.build();
 		try{
+			authenticationRequest = decodeBase64(authenticationRequest);
 			log.info("Inicia proceso para authenticaion {} , {} ",authenticationRequest.getUsername(),Fechas.getHoraLogeo());
 			UserDTO dto=userService.findByUserName(authenticationRequest.getUsername());
 			if(dto!=null) {
@@ -84,6 +85,18 @@ public class AuthenticateController {
 		log.info("Termina proceso para authenticaion con error  {} ", Fechas.getHoraLogeo());
 		return ResponseEntity.status(HttpStatus.SC_OK).body(responseVO);		
 	} 
+
+	private AuthenticationRequest decodeBase64(AuthenticationRequest authenticationRequest) {
+		if(authenticationRequest!=null) {
+			if(authenticationRequest.getUsername()!=null && !authenticationRequest.getUsername().isEmpty()) {
+				authenticationRequest.setUsername(new String(Base64.getDecoder().decode(authenticationRequest.getUsername())));
+			}
+			if(authenticationRequest.getPassword()!=null && !authenticationRequest.getPassword().isEmpty()) {
+				authenticationRequest.setPassword(new String(Base64.getDecoder().decode(authenticationRequest.getPassword())));
+			}
+		}
+		return authenticationRequest;
+	}
 
 	private void authenticate(String username, String password) throws Exception {
 		log.info("Inicia proceso para authenticationManager {} , {} ",username,Fechas.getHoraLogeo());
