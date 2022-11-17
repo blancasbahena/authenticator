@@ -205,7 +205,7 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
-				<project.packaging>war</project.packaging>
+				<project.packaging>jar</project.packaging>
 				<activatedProperties>dev</activatedProperties>
 			</properties>
 		</profile>
@@ -213,7 +213,7 @@
 		<profile>
 			<id>qas</id>
 			<properties>
-				<project.packaging>war</project.packaging>
+				<project.packaging>jar</project.packaging>
 				<activatedProperties>qas</activatedProperties>
 			</properties>
 			<dependencies>
@@ -261,7 +261,7 @@
 		<profile>
 			<id>prod</id>
 			<properties>
-				<project.packaging>war</project.packaging>
+				<project.packaging>jar</project.packaging>
 				<activatedProperties>prod</activatedProperties>
 			</properties>
 			<dependencies>
