@@ -42,13 +42,11 @@ public class JWUtil {
 	}
 
 	private static Claims extraxtAllClaims(String token) {
-		return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
-	} 
-	public static Integer extractId(String token) {
-		Claims claims=extraxtAllClaims(token);
-		return (Integer) claims.get("id");
-	}
-	
+		if(token!=null) {
+			return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+		}
+		return null;
+	}	
 
 	private static Boolean istokenExpired(String token) {
 		return extractExpiration(token).before(new Date());
@@ -60,28 +58,28 @@ public class JWUtil {
 	}
 
 	public static String generaToken(UserDetails userDatails,UserDTO dto) {
-		boolean existenRoles=false;
-		TokenDTO token=null;
+		TokenDTO token=new TokenDTO();
+		Map<String, Object> claims = new HashMap<>();
+		boolean conPermisos=false;
 		if(dto.getRoles()!=null ) {
 			if(!dto.getRoles().isEmpty()) {
-				existenRoles=true;
-				token= modelTokenPermiso(dto.getRoles());
+				token= modelTokenPermiso(dto);
+				conPermisos=true;
 			}
 		}
-		Map<String, Object> claims = new HashMap<>();
-	    claims.put("id", dto.getId());
-	    claims.put("email", dto.getEmail());
-	    claims.put("name", dto.getName());
-	    if(existenRoles) {
-	    	claims.put("token",token);
-	    }
+		if(!conPermisos) {
+	    	token.setId(dto.getId());
+	    	token.setEmail(dto.getEmail());
+	    	token.setName(dto.getName());
+		}
+    	claims.put("token",token);
 		return createToken(claims, userDatails.getUsername());
 	}
-	private static TokenDTO modelTokenPermiso(List<RoleDTO> rolesDTO) {
+	public static TokenDTO modelTokenPermiso(UserDTO dto) {
 		
 		List<TokenRoleDTO> roles =new ArrayList<TokenRoleDTO>();
 		List<TokenPermisoDTO> permissions=  new ArrayList<TokenPermisoDTO>();
-		rolesDTO.stream().forEach(r->{
+		dto.getRoles().stream().forEach(r->{
 				roles.add(new TokenRoleDTO(r.getId(),r.getDescripcion()));
 				if(r.getPermisos()!=null)
 				{
@@ -100,7 +98,7 @@ public class JWUtil {
 						)).collect(Collectors.toList()));
 				}
 			});
-		return new TokenDTO(roles,permissions.stream().filter( distinctByKey(p -> p.getId()) ).collect( Collectors.toList()));
+		return new TokenDTO(dto.getId(),dto.getName(), dto.getEmail(),roles,permissions.stream().filter( distinctByKey(p -> p.getId()) ).collect( Collectors.toList()));
 	}
 	public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) 
 	{
@@ -116,7 +114,6 @@ public class JWUtil {
 
 	public static Boolean validateToken(String token) {
 		final String userName = extractUsername(token);
-		Integer id =extractId(token);
 		return (!istokenExpired(token));
 	}
 

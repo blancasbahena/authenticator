@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,13 +29,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/usuarios")
+@RequestMapping(value = "/usuarios" )
 @Slf4j
+@CrossOrigin(value = {"*"}, exposedHeaders = {"Content-Disposition"})
 public class UsuarioController { 
 	private final  UserService service;
 	private final JWUtil jwutil;
 	private final ValidaTokenService tokenService;
-	@GetMapping 
+	@GetMapping //(consumes =  MediaType.APPLICATION_JSON_UTF8_VALUE, produces  = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ApiOperation(value = "Servicio que muestra informacion de un usuario, parametros {username o id}", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> getUsuarios(@RequestParam(required=false) String userName,@RequestParam(required=false) Long id){
 		log.info("Inicia controller para obtencion de usuarios {} , {} ,{}",userName!=null?userName:"-",id!=null?id:"-",Fechas.getHoraLogeo());
