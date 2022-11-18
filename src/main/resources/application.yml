@@ -9,10 +9,6 @@ spring:
   mvc:
     servlet:
       path: /api/v1
-  profiles:
-    active: dev
-    pathmatch:
-      matching-strategy: ant_path_matcher
 logging:
   level:
     com: DEBUG
