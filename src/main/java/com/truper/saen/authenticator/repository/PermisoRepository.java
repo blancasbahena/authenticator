@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import com.truper.saen.authenticator.projection.PermisoProjection;
 import com.truper.saen.commons.entities.Permiso;
 @Repository
 public interface PermisoRepository extends JpaRepository<Permiso, Long> {
@@ -13,7 +15,32 @@ public interface PermisoRepository extends JpaRepository<Permiso, Long> {
 	Optional<Permiso> findByNombrePermiso(String string);
 
 	List<Permiso> findByIdIn(List<Long> ids);
-
- 
+	
+	@Query(value=
+			"SELECT p.id, p.descripcion, p.icon, p.tooltip, p.url, p.parent, p.tipo \r\n"
+			+ "FROM usuarios u \r\n"
+			+ "INNER JOIN user_roles ur ON ur.id_user = u.id \r\n"
+			+ "INNER JOIN roles r ON r.id = ur.id_rol \r\n"
+			+ "INNER JOIN roles_permisos rp ON rp.id_rol = r.id \r\n"
+			+ "INNER JOIN permisos p ON p.id = rp.id_permisos \r\n"
+			+ "WHERE u.id = :idUser\r\n"
+			+ "AND p.tipo = 'ACCESS_MENU'\r\n"
+			+ "AND p.parent IS NULL\r\n"
+			+ "AND p.active = 1 "
+			+ "ORDER BY p.orden ASC;", nativeQuery = true)
+	List<PermisoProjection> permisosMenu(Long idUser);
+	
+	@Query(value=
+			"SELECT p.id, p.descripcion, p.icon, p.tooltip, p.url, p.parent, p.tipo \r\n"
+			+ "FROM usuarios u \r\n"
+			+ "INNER JOIN user_roles ur ON ur.id_user = u.id \r\n"
+			+ "INNER JOIN roles r ON r.id = ur.id_rol \r\n"
+			+ "INNER JOIN roles_permisos rp ON rp.id_rol = r.id \r\n"
+			+ "INNER JOIN permisos p ON p.id = rp.id_permisos \r\n"
+			+ "WHERE u.id = :idUser\r\n"
+			+ "AND p.parent = :parent\r\n"
+			+ "AND p.active = 1 "
+			+ "ORDER BY p.orden ASC", nativeQuery = true)
+	List<PermisoProjection> permisosSubMenu(Long idUser, Long parent);
 
 }
