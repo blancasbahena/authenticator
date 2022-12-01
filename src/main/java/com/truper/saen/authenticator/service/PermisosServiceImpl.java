@@ -1,4 +1,5 @@
 package com.truper.saen.authenticator.service;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -12,9 +13,11 @@ import com.truper.saen.commons.entities.Permiso;
 import com.truper.saen.commons.entities.Relationships;
 import com.truper.saen.commons.entities.Role;
 import com.truper.saen.commons.entities.User;
+import com.truper.saen.authenticator.projection.PermisoProjection;
 import com.truper.saen.authenticator.repository.PermisoRepository;
 import com.truper.saen.authenticator.repository.RoleRepository;
 import com.truper.saen.authenticator.repository.UserRepository;
+import com.truper.saen.commons.dto.MenuDTO;
 import com.truper.saen.commons.dto.PermisoDTO;
 import com.truper.saen.commons.dto.UserDTO;
 
@@ -222,5 +225,36 @@ public class PermisosServiceImpl implements PermisosService {
 			}
 		}
 	}
+
+	@Override
+	public List<MenuDTO> findPermisosMenu(Long idUser) {
+		try {
+			List<PermisoProjection> pMenus = permisoRepository.permisosMenu(idUser);
+			List<MenuDTO> menus = pMenus.stream().map(pMenu->modelMapper.map(pMenu, MenuDTO.class)).collect(Collectors.toList());
+			buscaSubMenus(menus, idUser);
+			return menus;
+		} catch (Exception e) {
+			return new ArrayList<MenuDTO>();
+		}
+	}
+	
+	public List<MenuDTO> buscaSubMenus(List<MenuDTO> menus, Long idUser){
+		for(MenuDTO menu: menus) {
+			List<PermisoProjection> pSubMenus;
+			pSubMenus = permisoRepository.permisosSubMenu(idUser, menu.getId());
+			if(pSubMenus.isEmpty()) {
+				//Se detiene la busqueda recursiva
+			}else {
+				List<MenuDTO> subMenus = new ArrayList<>();
+				subMenus = pSubMenus.stream().map(pSubMenu->modelMapper.map(pSubMenu, MenuDTO.class)).collect(Collectors.toList());
+				menu.setSubMenus(subMenus);
+				buscaSubMenus(subMenus, idUser);
+			}
+		}
+		
+		return menus;
+	}
+	
+	
 }
 
