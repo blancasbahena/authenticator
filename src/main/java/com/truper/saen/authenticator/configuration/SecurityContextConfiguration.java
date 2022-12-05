@@ -67,7 +67,7 @@ public class SecurityContextConfiguration extends WebSecurityConfigurerAdapter
     public void configure(WebSecurity web) throws Exception 
     {
 		web.ignoring()
-		.antMatchers(HttpMethod.POST, "/api/v1/authenticate")
+		.antMatchers(HttpMethod.POST, "/api/v1/authenticate/**")
 		.antMatchers("/api/v1/v2/api-docs/**")
 		.antMatchers("/api/v1/swagger.json")
 		.antMatchers("/api/v1/swagger-ui.html")

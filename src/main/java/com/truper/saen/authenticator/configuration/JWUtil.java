@@ -42,9 +42,13 @@ public class JWUtil {
 	}
 
 	private static Claims extraxtAllClaims(String token) {
-		if(token!=null) {
+		if(token!=null ) {
+			if(token.trim().equals("null")) {
+				return null;
+			}
 			return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
 		}
+		
 		return null;
 	}	
 

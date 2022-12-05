@@ -40,7 +40,7 @@ public class AuthenticateController {
 	private final UserService userService;
 	private final AuthenticationManager authenticationManager;
 	private ActiveDirectoryConnector AD_CON = ActiveDirectoryConnector.getInstance();
-	@PostMapping
+	@PostMapping("/sigin")
 	@ApiOperation(value = "Servicio para la auntenticacion con Body{ username / password } y regresa token")
 	public ResponseEntity<?> createAuthenticationTokenAD(@RequestBody
 			AuthenticationRequest authenticationRequest) throws Exception {
