@@ -242,11 +242,13 @@ public class PermisosServiceImpl implements PermisosService {
 		for(MenuDTO menu: menus) {
 			List<PermisoProjection> pSubMenus;
 			pSubMenus = permisoRepository.permisosSubMenu(idUser, menu.getId());
+
 			if(pSubMenus.isEmpty()) {
 				//Se detiene la busqueda recursiva
 			}else {
 				List<MenuDTO> subMenus = new ArrayList<>();
 				subMenus = pSubMenus.stream().map(pSubMenu->modelMapper.map(pSubMenu, MenuDTO.class)).collect(Collectors.toList());
+				buscaMenusAccion(subMenus, idUser);
 				menu.setSubMenus(subMenus);
 				buscaSubMenus(subMenus, idUser);
 			}
@@ -255,6 +257,22 @@ public class PermisosServiceImpl implements PermisosService {
 		return menus;
 	}
 	
+	public List<MenuDTO> buscaMenusAccion(List<MenuDTO> menus, Long idUser){
+		for(MenuDTO menu: menus) {
+			List<PermisoProjection> pMenuAccion;
+			pMenuAccion = permisoRepository.permisosMenuAccion(idUser, menu.getId());
+			if(pMenuAccion.isEmpty()) {
+				//Se detiene la busqueda recursiva
+			}else {
+				List<MenuDTO> subMenusAccion = new ArrayList<>();
+				subMenusAccion = pMenuAccion.stream().map(pMenuAcc->modelMapper.map(pMenuAcc, MenuDTO.class)).collect(Collectors.toList());
+				menu.setMenusAccion(subMenusAccion);
+				buscaMenusAccion(subMenusAccion, idUser);
+			}
+		}
+		
+		return menus;
+	}
 	
 }
 
