@@ -46,7 +46,7 @@ public interface PermisoRepository extends JpaRepository<Permiso, Long> {
 	
 	
 	@Query(value=
-			"SELECT p.id, p.descripcion, p.icon, p.tooltip, p.url, p.parent, p.tipo \r\n"
+			"SELECT p.id, p.descripcion, p.icon, p.tooltip, p.url, p.parent, p.tipo, p.identifier_accion as accion\r\n"
 			+ "FROM usuarios u \r\n"
 			+ "INNER JOIN user_roles ur ON ur.id_user = u.id \r\n"
 			+ "INNER JOIN roles r ON r.id = ur.id_rol \r\n"
