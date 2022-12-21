@@ -15,5 +15,7 @@ public interface PermisoProjection {
 	 Long getParent();
 	
 	 String getTipo();	
+	 
+	 String getAccion();
 
 }
