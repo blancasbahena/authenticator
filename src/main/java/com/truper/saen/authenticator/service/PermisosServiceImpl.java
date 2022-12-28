@@ -245,6 +245,9 @@ public class PermisosServiceImpl implements PermisosService {
 
 			if(pSubMenus.isEmpty()) {
 				//Se detiene la busqueda recursiva
+				
+				buscaMenusAccion(menus, idUser);
+				
 			}else {
 				List<MenuDTO> subMenus = new ArrayList<>();
 				subMenus = pSubMenus.stream().map(pSubMenu->modelMapper.map(pSubMenu, MenuDTO.class)).collect(Collectors.toList());
