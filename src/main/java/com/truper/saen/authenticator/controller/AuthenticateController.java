@@ -11,6 +11,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -83,6 +84,50 @@ public class AuthenticateController {
 			responseVO.setFolio(ResponseVO.getFolioActual());
 		}
 		log.info("Termina proceso para authenticaion con error  {} ", Fechas.getHoraLogeo());
+		return ResponseEntity.status(HttpStatus.SC_OK).body(responseVO);		
+	} 
+	@GetMapping("/read")
+	@ApiOperation(value = "Servicio para validar si existe usuario y tenga correo")
+	public ResponseEntity<?> getUser(@RequestBody
+			AuthenticationRequest authenticationRequest) throws Exception {
+		ResponseVO responseVO = ResponseVO.builder()
+				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+				.mensaje("Problems with user in Data Base")
+				.folio(ResponseVO.getFolioActual())
+				.build();
+		try{ 
+			log.info("Inicia proceso para authenticaion {} , {} ",authenticationRequest.getUsername(),Fechas.getHoraLogeo());
+			UserDTO dto=userService.findByUserName(new String(Base64.getDecoder().decode(authenticationRequest.getUsername())));
+			if(dto!=null) {
+				Map<String, Object> formData = new HashMap<>();
+				dto.setPassword(null);
+				dto.setRoles(null);
+				dto.setUserCreated(null);
+				dto.setUserModified(null);
+				dto.setCreated(null);
+				dto.setModified(null);
+				formData.put("user",  dto);
+				log.info("Termina proceso para authenticaion   {} ", Fechas.getHoraLogeo());
+				ResponseVO responseOK = ResponseVO.builder()
+						.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
+						.mensaje(Mensajes.MSG_EXITO.getMensaje())
+						.data(formData)
+						.folio(ResponseVO.getFolioActual())
+						.build();
+				return ResponseEntity.status(HttpStatus.SC_OK).body(responseOK);
+			}else {
+				responseVO = ResponseVO.builder()
+						.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+						.mensaje("Problems with read to user")
+						.folio(ResponseVO.getFolioActual())
+						.build();
+			}
+		}catch(Exception e) {
+			log.error("Problems with read to user: {} ",e.getMessage());
+			responseVO.setMensaje("Problems with read to user");
+			responseVO.setFolio(ResponseVO.getFolioActual());
+		}
+		log.info("Termina proceso para leer user con error  {} ", Fechas.getHoraLogeo());
 		return ResponseEntity.status(HttpStatus.SC_OK).body(responseVO);		
 	} 
 

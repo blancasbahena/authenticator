@@ -1,4 +1,6 @@
 package com.truper.saen.authenticator.service;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -30,42 +32,46 @@ public class UserServiceImpl implements UserService {
 	private User userCreated=null;
 	@Override
 	public Boolean save(UserDTO dto) throws Exception {
-		log.info("Creando usuario  {}",dto.getUserName());
-		List<Role> listaRoles= null;
-		Optional<User> busquedaUserName =   userRepository.findByUserNameAndActive(dto.getUserName(),true);
-		Optional<User> busquedaCorreo =   userRepository.findByEmailAndActive(dto.getEmail(),true);
-		if(dto.getUserCreated()!=null) {
-			Optional<User> userOpt=userRepository.findById(dto.getUserCreated().getId());
-			if(userOpt.isPresent()) {
-				userCreated = userOpt.get();
-			}
-		}
-		if(userCreated!=null) {
-			try {
-				if(dto.getActive()==null) {
-					dto.setActive(false);
-				}
-				validateNuevo(dto,busquedaUserName,busquedaCorreo);
-				User nuevo=modelMapper.map(dto, User.class);
-				nuevo.setCreated(new Date());
-				nuevo.setModified(new Date());
-				nuevo.setUserCreated(userCreated);
-				nuevo.setUserModified(userCreated);
-				if(dto.getRoles()!=null) {
-					if(!dto.getRoles().isEmpty()) {
-						List<Long> ids =dto.getRoles().stream().map(p->p.getId()).collect(Collectors.toList());
-						listaRoles = roleRepository.findByIdIn(ids);
-						nuevo.setRoles(listaRoles);
+		if(dto!=null) {
+			if(dto.getUserName()!=null) {
+				log.info("Creando usuario  {}",dto.getUserName());
+				List<Role> listaRoles= null;
+				Optional<User> busquedaUserName =   userRepository.findByUserNameAndActive(dto.getUserName(),true);
+				Optional<User> busquedaCorreo =   userRepository.findByEmailAndActive(dto.getEmail(),true);
+				if(dto.getUserCreated()!=null) {
+					Optional<User> userOpt=userRepository.findById(dto.getUserCreated().getId());
+					if(userOpt.isPresent()) {
+						userCreated = userOpt.get();
 					}
 				}
-				userRepository.save(nuevo);
-				return true;
-			}catch(Exception e) {
-				log.error("Problemas en Users : {}",e.getMessage());
-				throw new Exception(e.getMessage());
+				if(userCreated!=null) {
+					try {
+						if(dto.getActive()==null) {
+							dto.setActive(false);
+						}
+						validateNuevo(dto,busquedaUserName,busquedaCorreo);
+						User nuevo=modelMapper.map(dto, User.class);
+						nuevo.setCreated(new Date());
+						nuevo.setModified(new Date());
+						nuevo.setUserCreated(userCreated);
+						nuevo.setUserModified(userCreated);
+						if(dto.getRoles()!=null) {
+							if(!dto.getRoles().isEmpty()) {
+								List<Long> ids =dto.getRoles().stream().map(p->p.getId()).collect(Collectors.toList());
+								listaRoles = roleRepository.findByIdIn(ids);
+								nuevo.setRoles(listaRoles);
+							}
+						}
+						userRepository.save(nuevo);
+						return true;
+					}catch(Exception e) {
+						log.error("Problemas en Users : {}",e.getMessage());
+						throw new Exception(e.getMessage());
+					}
+				}else{
+					log.error("Problems with the creating user");
+				}
 			}
-		}else{
-			log.error("Problems with the creating user");
 		}
 		return false;
 	}
@@ -223,5 +229,15 @@ public class UserServiceImpl implements UserService {
 		if(dto.getName().isEmpty() || dto.getName().equals(""))
 			throw new Exception("Error - Its necesary Name");
 	}
-
+	@Override
+	public List<UserDTO> findall(){
+		log.info("Inicia proceso para consultar muchos usuarios");
+		List<User> usuarios  =userRepository.findAll();
+		if(usuarios!=null && !usuarios.isEmpty()) {
+			return usuarios.stream().map(user->
+			Relationships.directSelfReference(modelMapper.map(user, UserDTO.class))
+			).collect(Collectors.toList());
+		}
+		return Arrays.asList();
+	}
 }
