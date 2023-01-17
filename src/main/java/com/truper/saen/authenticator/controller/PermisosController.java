@@ -22,6 +22,7 @@ import com.truper.saen.authenticator.configuration.JWUtil;
 import com.truper.saen.authenticator.service.PermisosService;
 import com.truper.saen.authenticator.service.UserService;
 import com.truper.saen.authenticator.service.ValidaTokenService;
+import com.truper.saen.commons.dto.MenuDTO;
 import com.truper.saen.commons.dto.PermisoDTO;
 import com.truper.saen.commons.dto.ResponseVO;
 import com.truper.saen.commons.dto.UserDTO;
@@ -313,4 +314,46 @@ public class PermisosController {
 				.build());
 	}
 	
+	
+	@GetMapping("/getUnassignByRolAndScreen")
+	@ApiOperation(value = "Servicio para obtener permisos no asignados por rol y pantalla", authorizations = @Authorization(value = "Bearer"))
+	public ResponseEntity<ResponseVO> getUnassing(@RequestParam Long idRol, @RequestParam Long idPantalla, @RequestHeader("Authorization")String authorization){
+		Map<String, Object> formData = new HashMap<>();
+		try {
+			formData.put("Mensaje", "Obtencion de pantallas por rol");
+			List<MenuDTO> menu = service.findUnassing(idRol,idPantalla);
+			formData.put("menu", menu);
+		} catch (Exception e) {
+			log.info("ERROR EN MENU");
+		}
+		
+		return ResponseEntity.ok(ResponseVO.builder()
+				.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
+				.mensaje(Mensajes.MSG_EXITO.getMensaje())
+				.folio(ResponseVO.getFolioActual())
+				.data(formData)
+				.build());
+		
+	}
+	
+	@GetMapping("/getAssignByRolAndScreen")
+	@ApiOperation(value = "Servicio para obtener permisos asignados por rol y pantalla", authorizations = @Authorization(value = "Bearer"))
+	public ResponseEntity<ResponseVO> getAssing(@RequestParam Long idRol, @RequestParam Long idPantalla, @RequestHeader("Authorization")String authorization){
+		Map<String, Object> formData = new HashMap<>();
+		try {
+			formData.put("Mensaje", "Obtencion de pantallas por rol");
+			List<MenuDTO> menu = service.findAssing(idRol,idPantalla);
+			formData.put("menu", menu);
+		} catch (Exception e) {
+			log.info("ERROR EN MENU");
+		}
+		
+		return ResponseEntity.ok(ResponseVO.builder()
+				.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
+				.mensaje(Mensajes.MSG_EXITO.getMensaje())
+				.folio(ResponseVO.getFolioActual())
+				.data(formData)
+				.build());
+		
+	}
 }
