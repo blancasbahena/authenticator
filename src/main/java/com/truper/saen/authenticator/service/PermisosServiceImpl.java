@@ -231,10 +231,30 @@ public class PermisosServiceImpl implements PermisosService {
 		try {
 			List<PermisoProjection> pMenus = permisoRepository.pantallas(idRol);
 			List<MenuDTO> menus = pMenus.stream().map(pMenu->modelMapper.map(pMenu, MenuDTO.class)).collect(Collectors.toList());
+			buscaSubPantallas(menus, idRol);
 			return menus;
 		} catch (Exception e) {
 			return new ArrayList<MenuDTO>();
 		}
+	}
+	
+	public List<MenuDTO> buscaSubPantallas(List<MenuDTO> menus, Long idRol){
+		for(MenuDTO menu: menus) {
+			List<PermisoProjection> pSubMenus;
+			pSubMenus = permisoRepository.subpantallas(idRol, menu.getId());
+
+			if(pSubMenus.isEmpty()) {
+				//Se detiene la busqueda recursiva				
+			}else {
+				List<MenuDTO> subMenus = new ArrayList<>();
+				subMenus = pSubMenus.stream().map(pSubMenu->modelMapper.map(pSubMenu, MenuDTO.class)).collect(Collectors.toList());
+				//buscaMenusAccion(subMenus, idUser);
+				menu.setSubMenus(subMenus);
+				//buscaSubMenus(subMenus, idUser);
+			}
+		}
+		
+		return menus;
 	}
 	
 	@Override

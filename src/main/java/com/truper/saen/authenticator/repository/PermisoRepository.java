@@ -24,16 +24,19 @@ public interface PermisoRepository extends JpaRepository<Permiso, Long> {
 			+ "p.tipo = 'ACCESS_MENU'\r\n"
 			+ "AND p.parent IS NULL\r\n"
 			+ "AND p.active = 1 \r\n"
-			+ "GROUP by p.id, p.descripcion, p.icon, p.tooltip, p.url, p.parent\r\n"
-			+ "union all\r\n"
-			+ "SELECT DISTINCT p.id, UPPER(p.descripcion) as descripcion, p.icon, p.tooltip, p.url, p.parent, (select rp2.id_rol  from roles_permisos rp2 where rp2.id_permisos=p.id and id_rol=:idRol) as tipo\r\n"
+			+ "GROUP by p.id, p.descripcion, p.icon, p.tooltip, p.url, p.parent", nativeQuery = true)
+	List<PermisoProjection> pantallas(Long idRol);
+	
+	@Query(value="SELECT DISTINCT p.id, UPPER(p.descripcion) as descripcion, p.icon, p.tooltip, p.url, p.parent, (select rp2.id_rol  from roles_permisos rp2 where rp2.id_permisos=p.id and id_rol=:idRol) as tipo\r\n"
 			+ "FROM roles r  \r\n"
 			+ "right JOIN roles_permisos rp ON rp.id_rol = r.id \r\n"
 			+ "right JOIN permisos p ON p.id = rp.id_permisos \r\n"
 			+ "WHERE \r\n"
-			+ "p.active = 1 \r\n"
-			+ "AND p.tipo = 'ACCESS_SUBMENU'", nativeQuery = true)
-	List<PermisoProjection> pantallas(Long idRol);
+			+ "p.parent = :parent\r\n"
+			+ "and p.active = 1 \r\n"
+			+ "AND p.tipo = 'ACCESS_SUBMENU'\r\n"
+			+ "order by p.id", nativeQuery = true)
+	List<PermisoProjection> subpantallas(Long idRol, Long parent);
 	
 	@Query(value="SELECT DISTINCT p.id, p.descripcion, p.icon, p.tooltip, p.url, p.parent, p.tipo \r\n"
 			+ "FROM roles r  \r\n"
