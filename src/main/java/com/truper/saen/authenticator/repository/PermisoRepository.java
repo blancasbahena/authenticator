@@ -40,11 +40,10 @@ public interface PermisoRepository extends JpaRepository<Permiso, Long> {
 	
 	@Query(value="SELECT DISTINCT p.id, p.descripcion, p.icon, p.tooltip, p.url, p.parent, p.tipo \r\n"
 			+ "FROM roles r  \r\n"
-			+ "INNER JOIN roles_permisos rp ON rp.id_rol = r.id \r\n"
-			+ "INNER JOIN permisos p ON p.id = rp.id_permisos \r\n"
+			+ "RIGHT JOIN roles_permisos rp ON rp.id_rol = r.id \r\n"
+			+ "RIGHT JOIN permisos p ON p.id = rp.id_permisos \r\n"
 			+ "WHERE \r\n"
 			+ "p.parent = :idPantalla\r\n"
-			+ "and rp.id_rol <> :idRol\r\n"
 			+ "and p.id not in (SELECT DISTINCT p.id\r\n"
 			+ "FROM roles r  \r\n"
 			+ "INNER JOIN roles_permisos rp ON rp.id_rol = r.id \r\n"
