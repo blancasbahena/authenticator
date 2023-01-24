@@ -51,7 +51,6 @@ public class ValidaServicePantallasTest {
 		List<MenuDTO> menu = serviceP.findUnassing(new Long("36"), new Long("15"));
 		menu.stream().forEach((pantallas) -> {
 			System.out.println(pantallas.getDescripcion());
-			
 		});
 	}
 
@@ -61,7 +60,6 @@ public class ValidaServicePantallasTest {
 		List<MenuDTO> menu = serviceP.findAssing(new Long("36"), new Long("162"));
 		menu.stream().forEach((pantallas) -> {
 			System.out.println(pantallas.getDescripcion());
-			
 		});
 	}
 }
