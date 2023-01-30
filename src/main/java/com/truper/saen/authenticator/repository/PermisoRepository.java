@@ -16,6 +16,58 @@ public interface PermisoRepository extends JpaRepository<Permiso, Long> {
 
 	List<Permiso> findByIdIn(List<Long> ids);
 	
+	@Query(value="SELECT DISTINCT (p.id), UPPER(p.descripcion) as descripcion, p.icon, p.tooltip, p.url, p.parent, (select rp2.id_rol as tipo  from roles_permisos rp2 where rp2.id_permisos=p.id and id_rol=:idRol) as tipo\r\n"
+			+ "FROM roles r \r\n"
+			+ "right JOIN roles_permisos rp ON rp.id_rol = r.id \r\n"
+			+ "right JOIN permisos p ON p.id = rp.id_permisos \r\n"
+			+ "WHERE \r\n"
+			+ "p.tipo = 'ACCESS_MENU'\r\n"
+			+ "AND p.parent IS NULL\r\n"
+			+ "AND p.active = 1 \r\n"
+			+ "GROUP by p.id, p.descripcion, p.icon, p.tooltip, p.url, p.parent", nativeQuery = true)
+	List<PermisoProjection> pantallas(Long idRol);
+	
+	@Query(value="SELECT DISTINCT p.id, UPPER(p.descripcion) as descripcion, p.icon, p.tooltip, p.url, p.parent, (select rp2.id_rol  from roles_permisos rp2 where rp2.id_permisos=p.id and id_rol=:idRol) as tipo\r\n"
+			+ "FROM roles r  \r\n"
+			+ "right JOIN roles_permisos rp ON rp.id_rol = r.id \r\n"
+			+ "right JOIN permisos p ON p.id = rp.id_permisos \r\n"
+			+ "WHERE \r\n"
+			+ "p.parent = :parent\r\n"
+			+ "and p.active = 1 \r\n"
+			+ "AND p.tipo = 'ACCESS_SUBMENU'\r\n"
+			+ "order by p.id", nativeQuery = true)
+	List<PermisoProjection> subpantallas(Long idRol, Long parent);
+	
+	@Query(value="SELECT DISTINCT p.id, p.descripcion, p.icon, p.tooltip, p.url, p.parent, p.tipo \r\n"
+			+ "FROM roles r  \r\n"
+			+ "RIGHT JOIN roles_permisos rp ON rp.id_rol = r.id \r\n"
+			+ "RIGHT JOIN permisos p ON p.id = rp.id_permisos \r\n"
+			+ "WHERE \r\n"
+			+ "p.parent = :idPantalla\r\n"
+			+ "and p.id not in (SELECT DISTINCT p.id\r\n"
+			+ "FROM roles r  \r\n"
+			+ "INNER JOIN roles_permisos rp ON rp.id_rol = r.id \r\n"
+			+ "INNER JOIN permisos p ON p.id = rp.id_permisos \r\n"
+			+ "WHERE \r\n"
+			+ "p.parent = :idPantalla\r\n"
+			+ "and r.id = :idRol\r\n"
+			+ "and p.active = 1 \r\n"
+			+ "AND p.tipo = 'MENU_ACCION')\r\n"
+			+ "and p.active = 1 \r\n"
+			+ "AND p.tipo = 'MENU_ACCION'", nativeQuery = true)
+	List<PermisoProjection> findUnassing(Long idRol,Long idPantalla);
+	
+	@Query(value="SELECT DISTINCT p.id, p.descripcion, p.icon, p.tooltip, p.url, p.parent, p.tipo \r\n"
+			+ "FROM roles r  \r\n"
+			+ "INNER JOIN roles_permisos rp ON rp.id_rol = r.id \r\n"
+			+ "INNER JOIN permisos p ON p.id = rp.id_permisos \r\n"
+			+ "WHERE \r\n"
+			+ "p.parent = :idPantalla\r\n"
+			+ "and r.id = :idRol\r\n"
+			+ "and p.active = 1 \r\n"
+			+ "AND p.tipo = 'MENU_ACCION'", nativeQuery = true)
+	List<PermisoProjection> findAssing(Long idRol,Long idPantalla);
+	
 	@Query(value=
 			"SELECT DISTINCT (p.id), p.descripcion, p.icon, p.tooltip, p.url, p.parent, p.tipo, p.orden \r\n"
 			+ "FROM usuarios u \r\n"

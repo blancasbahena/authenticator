@@ -22,6 +22,7 @@ import com.truper.saen.authenticator.configuration.JWUtil;
 import com.truper.saen.authenticator.service.PermisosService;
 import com.truper.saen.authenticator.service.UserService;
 import com.truper.saen.authenticator.service.ValidaTokenService;
+import com.truper.saen.commons.dto.MenuDTO;
 import com.truper.saen.commons.dto.PermisoDTO;
 import com.truper.saen.commons.dto.ResponseVO;
 import com.truper.saen.commons.dto.UserDTO;
@@ -270,6 +271,57 @@ public class PermisosController {
 				.mensaje(mensaje)
 				.build());
 	}
+	
+	@PatchMapping("/appendList")
+	@ApiOperation(value = "Servicio para agregar un permiso a un rol, parametro { idRol y idPermission }", authorizations = @Authorization(value = "Bearer"))
+	public ResponseEntity<ResponseVO> appendPermissionsToRol(@RequestParam(required=true) Long idRol,
+			@RequestParam(required=true) List<Long> idPermissions,HttpServletRequest request){
+		String mensaje="Problems in PermisosController @PatchMapping";
+		log.info("Controller para asignar permiso a Rol {} ,{}",idRol,idPermissions);
+		Map<String, Object> formData = new HashMap<>();
+		try
+		{
+			tokenService.regresaUsuario(serviceUser, jwutil, request);
+		} catch (Exception e) {
+			log.error("Error: {}",e.getMessage());
+			mensaje =  e.getMessage();
+			return ResponseEntity.ok(ResponseVO.builder()
+					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+					.folio(ResponseVO.getFolioActual())
+					.mensaje(mensaje)
+					.build());
+		}
+		try
+		{
+			idPermissions.stream().forEach((idPermission)->{
+				UserDTO usuarioToken =null;
+				try
+				{
+					usuarioToken = tokenService.regresaUsuario(serviceUser, jwutil, request);
+				} catch (Exception e) {
+					log.error("Error: {}",e.getMessage());
+				}
+				formData.put("result", service.appendPermissionToRol(idRol,idPermission,usuarioToken));
+			});
+			
+			log.info("Termina controller para borrar roles con exito {}",Fechas.getHoraLogeo());
+			return ResponseEntity.ok(ResponseVO.builder()
+					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
+					.folio(ResponseVO.getFolioActual())
+					.mensaje(Mensajes.MSG_EXITO.getMensaje())
+					.data(formData)
+					.build());
+		} catch (Exception e) {
+			log.error("Error: {}",e.getMessage());
+			mensaje =  e.getMessage();
+		}
+		log.info("Termina controller para borrar permisos con error {} ",Fechas.getHoraLogeo());
+		return ResponseEntity.ok(ResponseVO.builder()
+				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+				.folio(ResponseVO.getFolioActual())
+				.mensaje(mensaje)
+				.build());
+	}
 	@PatchMapping("/remove")
 	@ApiOperation(value = "Servicio para remover permiso a un rol, parametro { idRol y idPermission }", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<ResponseVO> removePermissionToRol(@RequestParam(required=true) Long idRol,
@@ -313,4 +365,97 @@ public class PermisosController {
 				.build());
 	}
 	
+	@PatchMapping("/removeList")
+	@ApiOperation(value = "Servicio para remover permisos a un rol, parametro { idRol y idPermissions }", authorizations = @Authorization(value = "Bearer"))
+	public ResponseEntity<ResponseVO> removePermissionsToRol(@RequestParam(required=true) Long idRol,
+			@RequestParam(required=true) List<Long> idPermissions,HttpServletRequest request){
+		String mensaje="Problems in PermisosController @PatchMapping";
+		log.info("Controller para asignar permiso a Rol {} ,{}",idRol,idPermissions);
+		Map<String, Object> formData = new HashMap<>();
+		
+		try
+		{
+			tokenService.regresaUsuario(serviceUser, jwutil, request);
+		} catch (Exception e) {
+			log.error("Error: {}",e.getMessage());
+			mensaje =  e.getMessage();
+			return ResponseEntity.ok(ResponseVO.builder()
+					.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+					.folio(ResponseVO.getFolioActual())
+					.mensaje(mensaje)
+					.build());
+		}
+		try
+		{
+			idPermissions.stream().forEach((idPermission) ->{
+				UserDTO usuarioToken =null;
+				try
+				{
+					usuarioToken = tokenService.regresaUsuario(serviceUser, jwutil, request);
+				} catch (Exception e) {
+					log.error("Error: {}",e.getMessage());
+				}
+				formData.put("result", service.removePermissionToRol(idRol,idPermission,usuarioToken));
+			});
+			log.info("Termina controller para borrar roles con exito {}",Fechas.getHoraLogeo());
+			return ResponseEntity.ok(ResponseVO.builder()
+					.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
+					.mensaje(Mensajes.MSG_EXITO.getMensaje())
+					.folio(ResponseVO.getFolioActual())
+					.data(formData)
+					.build());
+		} catch (Exception e) {
+			log.error("Error: {}",e.getMessage());
+			mensaje =  e.getMessage();
+		}
+		log.info("Termina controller para borrar permisos con error {} ",Fechas.getHoraLogeo());
+		return ResponseEntity.ok(ResponseVO.builder()
+				.tipoMensaje(Mensajes.TIPO_ERROR.getMensaje())
+				.folio(ResponseVO.getFolioActual())
+				.mensaje(mensaje)
+				.build());
+	}
+	
+	
+	@GetMapping("/getUnassignByRolAndScreen")
+	@ApiOperation(value = "Servicio para obtener permisos no asignados por rol y pantalla", authorizations = @Authorization(value = "Bearer"))
+	public ResponseEntity<ResponseVO> getUnassing(@RequestParam Long idRol, @RequestParam Long idPantalla, @RequestHeader("Authorization")String authorization){
+		Map<String, Object> formData = new HashMap<>();
+		try {
+			formData.put("Mensaje", "Obtencion de pantallas por rol");
+			List<MenuDTO> menu = service.findUnassing(idRol,idPantalla);
+			formData.put("menu", menu);
+		} catch (Exception e) {
+			log.info("ERROR EN MENU");
+		}
+		
+		return ResponseEntity.ok(ResponseVO.builder()
+				.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
+				.mensaje(Mensajes.MSG_EXITO.getMensaje())
+				.folio(ResponseVO.getFolioActual())
+				.data(formData)
+				.build());
+		
+	}
+	
+	@GetMapping("/getAssignByRolAndScreen")
+	@ApiOperation(value = "Servicio para obtener permisos asignados por rol y pantalla", authorizations = @Authorization(value = "Bearer"))
+	public ResponseEntity<ResponseVO> getAssing(@RequestParam Long idRol, @RequestParam Long idPantalla, @RequestHeader("Authorization")String authorization){
+		Map<String, Object> formData = new HashMap<>();
+		try {
+			formData.put("Mensaje", "Obtencion de pantallas por rol");
+			List<MenuDTO> menu = service.findAssing(idRol,idPantalla);
+			formData.put("menu", menu);
+		} catch (Exception e) {
+			log.info("ERROR EN MENU");
+		}
+		
+		return ResponseEntity.ok(ResponseVO.builder()
+				.tipoMensaje(Mensajes.TIPO_EXITO.getMensaje())
+				.mensaje(Mensajes.MSG_EXITO.getMensaje())
+				.folio(ResponseVO.getFolioActual())
+				.data(formData)
+				.build());
+		
+	}
 }

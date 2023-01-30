@@ -227,6 +227,59 @@ public class PermisosServiceImpl implements PermisosService {
 	}
 
 	@Override
+	public List<MenuDTO> findPantallasMenu(Long idRol) {
+		try {
+			List<PermisoProjection> pMenus = permisoRepository.pantallas(idRol);
+			List<MenuDTO> menus = pMenus.stream().map(pMenu->modelMapper.map(pMenu, MenuDTO.class)).collect(Collectors.toList());
+			buscaSubPantallas(menus, idRol);
+			return menus;
+		} catch (Exception e) {
+			return new ArrayList<MenuDTO>();
+		}
+	}
+	
+	public List<MenuDTO> buscaSubPantallas(List<MenuDTO> menus, Long idRol){
+		for(MenuDTO menu: menus) {
+			List<PermisoProjection> pSubMenus;
+			pSubMenus = permisoRepository.subpantallas(idRol, menu.getId());
+
+			if(pSubMenus.isEmpty()) {
+				//Se detiene la busqueda recursiva				
+			}else {
+				List<MenuDTO> subMenus = new ArrayList<>();
+				subMenus = pSubMenus.stream().map(pSubMenu->modelMapper.map(pSubMenu, MenuDTO.class)).collect(Collectors.toList());
+				//buscaMenusAccion(subMenus, idUser);
+				menu.setSubMenus(subMenus);
+				//buscaSubMenus(subMenus, idUser);
+			}
+		}
+		
+		return menus;
+	}
+	
+	@Override
+	public List<MenuDTO> findUnassing(Long idRol, Long idPantalla) {
+		try {
+			List<PermisoProjection> pMenus = permisoRepository.findUnassing(idRol,idPantalla);
+			List<MenuDTO> menus = pMenus.stream().map(pMenu->modelMapper.map(pMenu, MenuDTO.class)).collect(Collectors.toList());
+			return menus;
+		} catch (Exception e) {
+			return new ArrayList<MenuDTO>();
+		}
+	}
+	
+	@Override
+	public List<MenuDTO> findAssing(Long idRol,Long idPantalla) {
+		try {
+			List<PermisoProjection> pMenus = permisoRepository.findAssing(idRol,idPantalla);
+			List<MenuDTO> menus = pMenus.stream().map(pMenu->modelMapper.map(pMenu, MenuDTO.class)).collect(Collectors.toList());
+			return menus;
+		} catch (Exception e) {
+			return new ArrayList<MenuDTO>();
+		}
+	}
+	
+	@Override
 	public List<MenuDTO> findPermisosMenu(Long idUser) {
 		try {
 			List<PermisoProjection> pMenus = permisoRepository.permisosMenu(idUser);

@@ -19,4 +19,7 @@ public interface PermisosService {
 	Boolean appendPermissionToRol(Long idRol, Long idPermission,UserDTO userDTO);
 	Boolean removePermissionToRol(Long idRol, Long idPermission,UserDTO userDTO);
 	List<MenuDTO> findPermisosMenu(Long idUser);
+	List<MenuDTO> findPantallasMenu(Long idRol);
+	List<MenuDTO> findUnassing(Long idRol,Long idPantalla);
+	List<MenuDTO> findAssing(Long idRol,Long idPantalla);
 }
