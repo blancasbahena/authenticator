@@ -12,4 +12,6 @@ public interface UserService {
 	UserDTO findById(Long idUser);
 	List<UserDTO> findall();
 	UserDTO findByUserName(String userName);
+	UserDTO prepareReset(String userName) throws Exception;
+	UserDTO reset(String userName,String password) throws  Exception;
 }

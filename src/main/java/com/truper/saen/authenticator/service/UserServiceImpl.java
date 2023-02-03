@@ -1,5 +1,7 @@
 package com.truper.saen.authenticator.service;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -155,7 +157,57 @@ public class UserServiceImpl implements UserService {
 		}
 		return null;
 	}
-
+	@Override
+	public UserDTO prepareReset(String userName) throws  Exception{
+		log.info("prepareReset usuario -prepareReset  {}",userName);
+		Optional<User> optPer =   userRepository.findByUserName(userName);
+		if(optPer.isPresent()) {
+			log.info("Consultando usuario-ID  {}",optPer.get().getId());
+			optPer.get().setPwdreset(true);
+			optPer.get().setActive(false);
+			optPer.get().setResetExpira(sumarTiempo(new Date(),1));
+			User user = userRepository.save(optPer.get());
+			if(user!=null) {
+				log.info("Guardando informacion de usuario -prepareReset   {}",userName);
+				UserDTO dto= Relationships.directSelfReference(modelMapper.map(user, UserDTO.class));
+				dto.setUserModified(null);
+				dto.setUserCreated(null);
+				dto.setRoles(null);
+				return  dto;
+			}
+		}
+		log.info("Problemas con el reseteo de password -prepareReset  {}",userName);
+		return null;
+	}
+	@Override
+	public UserDTO reset(String userName,String password) throws  Exception{
+		log.info("reset usuario -reset  {}",userName);
+		Optional<User> optPer =   userRepository.findByUserName(userName);
+		if(optPer.isPresent()) {
+			log.info("Consultando usuario-ID  {}",optPer.get().getId());
+			optPer.get().setPwdreset(false);
+			optPer.get().setActive(true);
+			optPer.get().setResetExpira(null);
+			optPer.get().setPassword(password);
+			User user = userRepository.save(optPer.get());
+			if(user!=null) {
+				log.info("Guardando informacion de usuario- reset  {}",userName);
+				UserDTO dto= Relationships.directSelfReference(modelMapper.map(user, UserDTO.class));
+				dto.setUserModified(null);
+				dto.setUserCreated(null);
+				dto.setRoles(null);
+				return  dto;
+			}
+		}
+		log.info("Problemas con el reseteo de password  -reset {}",userName);
+		return null;
+	}
+	public Date sumarTiempo(Date fecha, int hora){
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(fecha); // Configuramos la fecha que se recibe
+		calendar.set(Calendar.HOUR, calendar.get(Calendar.HOUR)+ hora);
+		return calendar.getTime(); // Devuelve el objeto Date con los nuevos días añadidos	
+	}
 	@Override
 	public UserDTO findByUserName(String userName) {
 		log.info("Consultando usuario  {}",userName);

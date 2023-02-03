@@ -68,6 +68,7 @@ public class SecurityContextConfiguration extends WebSecurityConfigurerAdapter
     {
 		web.ignoring()
 		.antMatchers(HttpMethod.POST, "/api/v1/authenticate/**")
+		.antMatchers(HttpMethod.PUT, "/api/v1/authenticate/**")
 		.antMatchers(HttpMethod.GET, "/api/v1/authenticate/**")
 		.antMatchers("/api/v1/v2/api-docs/**")
 		.antMatchers("/api/v1/swagger.json")
