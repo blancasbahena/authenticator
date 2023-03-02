@@ -1,8 +1,6 @@
 package com.truper.saen.authenticator.service;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -11,14 +9,17 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.truper.saen.commons.entities.Relationships;
-import com.truper.saen.commons.entities.Role;
-import com.truper.saen.commons.entities.User;
+import com.truper.saen.authenticator.client.EnvioCorreoReseteoPassClient;
+import com.truper.saen.authenticator.dto.ResetPasswordDTO;
 import com.truper.saen.authenticator.repository.RoleRepository;
 import com.truper.saen.authenticator.repository.UserRepository;
 import com.truper.saen.commons.dto.UserDTO;
+import com.truper.saen.commons.entities.Relationships;
+import com.truper.saen.commons.entities.Role;
+import com.truper.saen.commons.entities.User;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +31,15 @@ public class UserServiceImpl implements UserService {
 	private final ModelMapper modelMapper;
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
+	private final EnvioCorreoReseteoPassClient reseteoPassClient;
+	private final Integer PLANTILLA_RESETEO_EXITO=27;
+	private final Integer PLANTILLA_RESETEO_ERROR=28;
 	private User userModified=null;
 	private User userCreated=null;
+	@Value("${sae-batch.subject}")
+	private String subject;
+	@Value("${sae-batch.cc}")
+	private String copia;
 	@Override
 	public Boolean save(UserDTO dto) throws Exception {
 		if(dto!=null) {
@@ -158,23 +166,28 @@ public class UserServiceImpl implements UserService {
 		return null;
 	}
 	@Override
-	public UserDTO prepareReset(String userName) throws  Exception{
+	public ResetPasswordDTO prepareReset(String userName,String authorization) throws  Exception{
 		log.info("prepareReset usuario -prepareReset  {}",userName);
 		Optional<User> optPer =   userRepository.findByUserName(userName);
 		if(optPer.isPresent()) {
 			log.info("Consultando usuario-ID  {}",optPer.get().getId());
-			optPer.get().setPwdreset(true);
-			optPer.get().setActive(false);
-			optPer.get().setResetExpira(sumarTiempo(new Date(),1));
-			User user = userRepository.save(optPer.get());
-			if(user!=null) {
-				log.info("Guardando informacion de usuario -prepareReset   {}",userName);
-				UserDTO dto= Relationships.directSelfReference(modelMapper.map(user, UserDTO.class));
-				dto.setUserModified(null);
-				dto.setUserCreated(null);
-				dto.setRoles(null);
-				return  dto;
-			}
+			//optPer.get().setPwdreset(true);
+			///optPer.get().setActive(false);
+			//optPer.get().setResetExpira(sumarTiempo(new Date(),1));
+			//User user = userRepository.save(optPer.get());
+			boolean activeDirectory = optPer.get().getUserAD()==null?false:optPer.get().getUserAD();
+			log.info("Guardando informacion de usuario -prepareReset  y enviamos Datos  {}",userName);
+			ResetPasswordDTO dto = ResetPasswordDTO.builder()
+					.correo(optPer.get().getEmail())
+					.nombre(optPer.get().getName())
+					.usuario(optPer.get().getUserName())
+					.copia(copia)
+					.subject(subject)
+					.numeroPlantilla(activeDirectory?PLANTILLA_RESETEO_ERROR:PLANTILLA_RESETEO_EXITO)
+					.build();
+			log.info("DTO: "+dto.toString());
+			reseteoPassClient.envioCorreoResetPassword(authorization, dto);
+			return dto;
 		}
 		log.info("Problemas con el reseteo de password -prepareReset  {}",userName);
 		return null;
@@ -182,6 +195,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDTO reset(String userName,String password) throws  Exception{
 		log.info("reset usuario -reset  {}",userName);
+		log.info("reset pasasword -reset  {}",password);
 		Optional<User> optPer =   userRepository.findByUserName(userName);
 		if(optPer.isPresent()) {
 			log.info("Consultando usuario-ID  {}",optPer.get().getId());

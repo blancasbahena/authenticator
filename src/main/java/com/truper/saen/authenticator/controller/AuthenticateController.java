@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Base64;
 import org.apache.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -21,6 +22,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.truper.ActiveDirectoryConnector;
 import com.truper.saen.authenticator.configuration.JWUtil;
 import com.truper.saen.authenticator.configuration.UserDetailsServices;
+import com.truper.saen.authenticator.dto.ResetPasswordDTO;
 import com.truper.saen.authenticator.service.UserService;
 import com.truper.saen.commons.dto.AuthenticationRequest;
 import com.truper.saen.commons.dto.ResponseVO;
@@ -42,6 +44,10 @@ public class AuthenticateController {
 	private final UserService userService;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	private final AuthenticationManager authenticationManager;
+	@Value("${sae-batch.usuario}")
+	private String usuarioSistema;
+	@Value("${sae-batch.password}")
+	private String passwordSistema;
 	private ActiveDirectoryConnector AD_CON = ActiveDirectoryConnector.getInstance();
 	@PostMapping("/sigin")
 	@ApiOperation(value = "Servicio para la auntenticacion con Body{ username / password } y regresa token")
@@ -99,8 +105,9 @@ public class AuthenticateController {
 				.build();
 		try{
 			authenticationRequest = decodeBase64(authenticationRequest);
+			
 			log.info("Inicia proceso para prepareReset {} , {} ",authenticationRequest.getUsername(),Fechas.getHoraLogeo());
-			UserDTO dto=userService.prepareReset(authenticationRequest.getUsername());
+			ResetPasswordDTO dto=userService.prepareReset(authenticationRequest.getUsername(), crearTokenUsuarioSistema());
 			if(dto!=null) {
 				Map<String, Object> formData = new HashMap<>();
 				formData.put("reset", dto);
@@ -127,6 +134,17 @@ public class AuthenticateController {
 		log.info("Termina proceso para authenticaion con error  {} ", Fechas.getHoraLogeo());
 		return ResponseEntity.status(HttpStatus.SC_OK).body(responseVO);		
 	}
+	private String crearTokenUsuarioSistema() throws Exception {
+		AuthenticationRequest usuarioParaLogear = decodeBase64(AuthenticationRequest.builder().username(usuarioSistema).password(passwordSistema).build());
+		final UserDetails userDetails = userDetailsServices
+				.loadUserByUsername(usuarioParaLogear.getUsername());
+		UserDTO dtoSistema=userService.findByUserName(usuarioParaLogear.getUsername());
+		authenticate(usuarioParaLogear.getUsername(),usuarioParaLogear.getPassword());
+		String token = jwutil.generaTokenBasic(userDetails);
+		log.info("*************************************************************************************** ");
+		log.info("token  "+token);
+		return "Bearer "+token;
+	}
 	@PutMapping("/reset")
 	@ApiOperation(value = "Servicio para la auntenticacion con Body{ username / password } y regresa token")
 	public ResponseEntity<?> reset(@RequestBody
@@ -138,6 +156,8 @@ public class AuthenticateController {
 				.build();
 		try{
 			authenticationRequest = decodeBase64(authenticationRequest);
+			log.info("USER::: {}",authenticationRequest.getUsername());
+			log.info("PASS::: {}",authenticationRequest.getPassword());
 			log.info("Inicia proceso para prepareReset {} , {} ",authenticationRequest.getUsername(),Fechas.getHoraLogeo());
 			UserDTO dto=userService.reset(authenticationRequest.getUsername(), bCryptPasswordEncoder.encode(authenticationRequest.getPassword()));
 			if(dto!=null) {

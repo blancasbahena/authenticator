@@ -79,6 +79,10 @@ public class JWUtil {
     	claims.put("token",token);
 		return createToken(claims, userDatails.getUsername());
 	}
+	public static String generaTokenBasic(UserDetails userDatails) {
+		Map<String, Object> claims = new HashMap<>();
+		return createToken(claims, userDatails.getUsername());
+	}
 	public static TokenDTO modelTokenPermiso(UserDTO dto) {
 		
 		List<TokenRoleDTO> roles =new ArrayList<TokenRoleDTO>();

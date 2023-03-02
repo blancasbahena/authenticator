@@ -2,6 +2,7 @@ package com.truper.saen.authenticator.service;
 
 import java.util.List;
 
+import com.truper.saen.authenticator.dto.ResetPasswordDTO;
 import com.truper.saen.commons.dto.UserDTO;
 
 public interface UserService {
@@ -12,6 +13,6 @@ public interface UserService {
 	UserDTO findById(Long idUser);
 	List<UserDTO> findall();
 	UserDTO findByUserName(String userName);
-	UserDTO prepareReset(String userName) throws Exception;
+	ResetPasswordDTO prepareReset(String userName,String authorization) throws Exception;
 	UserDTO reset(String userName,String password) throws  Exception;
 }
